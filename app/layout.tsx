@@ -19,12 +19,6 @@ export const metadata: Metadata = {
     "Connect your Freighter wallet, check your XLM balance, and send payments on the Stellar Testnet. Built on Stellar blockchain.",
   keywords: ["Stellar", "XLM", "Freighter", "blockchain", "payments", "dApp"],
   authors: [{ name: "Oluwagbemiga Gbangbola" }],
-  icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico" },
-    ],
-  },
   openGraph: {
     title: "OrbitWork — Stellar Payments dApp",
     description: "Send XLM on Stellar Testnet with Freighter wallet",
