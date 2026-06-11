@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useWallet } from "@/contexts/wallet-context";
-import { getXLMBalance, shortAddress } from "@/lib/stellar";
+import { getXLMBalance } from "@/lib/stellar";
 
 export function BalanceCard() {
   const { address } = useWallet();
@@ -26,7 +26,6 @@ export function BalanceCard() {
 
   useEffect(() => {
     fetchBalance();
-    // Auto-refresh every 30s
     const id = setInterval(fetchBalance, 30_000);
     return () => clearInterval(id);
   }, [fetchBalance]);
@@ -36,17 +35,14 @@ export function BalanceCard() {
       className="rounded-2xl p-6 space-y-4 animate-fade-in-up"
       style={{
         background:
-          "linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(124,58,237,0.08) 100%)",
+          "linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(124,58,237,0.07) 100%)",
         border: "1px solid rgba(99,102,241,0.2)",
       }}
     >
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <XLMIcon />
-          <span className="text-sm font-medium text-white/60">
-            XLM Balance
-          </span>
+          <span className="text-sm font-medium text-white/60">XLM Balance</span>
         </div>
         <button
           onClick={fetchBalance}
@@ -58,10 +54,12 @@ export function BalanceCard() {
         </button>
       </div>
 
-      {/* Balance amount */}
       <div className="space-y-1">
         {loading && balance === null ? (
-          <div className="h-10 w-40 rounded-lg bg-white/5 animate-pulse" />
+          <div
+            className="h-10 w-40 rounded-lg animate-pulse"
+            style={{ background: "var(--surface-hover)" }}
+          />
         ) : error ? (
           <p className="text-red-400 text-sm">{error}</p>
         ) : (
@@ -83,26 +81,20 @@ export function BalanceCard() {
         )}
       </div>
 
-      {/* Divider */}
-      <div className="border-t border-white/5" />
+      <div style={{ borderTop: "1px solid var(--border-subtle)" }} />
 
-      {/* Wallet address */}
       <div className="space-y-1">
         <p className="text-xs text-white/40 uppercase tracking-wider">
           Wallet Address
         </p>
-        <p className="font-mono text-xs text-white/70 break-all">
-          {address}
-        </p>
+        <p className="font-mono text-xs text-white/70 break-all">{address}</p>
       </div>
 
-      {/* Network pill */}
       <div className="flex items-center gap-2">
         <span className="w-2 h-2 rounded-full bg-emerald-400" />
         <span className="text-xs text-emerald-400">Connected · Testnet</span>
       </div>
 
-      {/* Faucet link */}
       <a
         href={`https://laboratory.stellar.org/#account-creator?network=test&account=${address}`}
         target="_blank"
@@ -131,14 +123,9 @@ function XLMIcon() {
 function RefreshIcon({ spinning }: { spinning: boolean }) {
   return (
     <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      width="14" height="14" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2"
+      strokeLinecap="round" strokeLinejoin="round"
       style={spinning ? { animation: "spin-slow 1s linear infinite" } : {}}
     >
       <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />

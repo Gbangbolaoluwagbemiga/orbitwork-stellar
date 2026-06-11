@@ -20,7 +20,8 @@ export function WalletButton() {
 
         <button
           onClick={disconnect}
-          className="px-3 py-1.5 text-sm rounded-full border border-white/10 text-white/50 hover:border-red-500/40 hover:text-red-400 transition-colors duration-200"
+          className="px-3 py-1.5 text-sm rounded-full text-white/50 hover:text-red-400 transition-colors duration-200"
+          style={{ border: "1px solid var(--border-input)" }}
         >
           Disconnect
         </button>

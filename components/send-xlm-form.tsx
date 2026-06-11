@@ -100,8 +100,8 @@ export function SendXLMForm() {
             <div
               className="flex items-center gap-2 p-3 rounded-xl font-mono text-xs break-all"
               style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.07)",
+                background: "var(--surface-input)",
+                border: "1px solid var(--border-card)",
                 color: "#06b6d4",
               }}
             >
@@ -128,7 +128,7 @@ export function SendXLMForm() {
           <button
             onClick={reset}
             className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-white/60 hover:text-white transition-colors"
-            style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+            style={{ border: "1px solid var(--border-input)" }}
           >
             Send Again
           </button>
@@ -142,8 +142,8 @@ export function SendXLMForm() {
     <div
       className="rounded-2xl p-6 space-y-5 animate-fade-in-up delay-100"
       style={{
-        background: "rgba(255,255,255,0.025)",
-        border: "1px solid rgba(255,255,255,0.07)",
+        background: "var(--surface-card)",
+        border: "1px solid var(--border-card)",
       }}
     >
       <div className="flex items-center gap-2">
@@ -166,14 +166,14 @@ export function SendXLMForm() {
             disabled={isLoading}
             className="w-full px-4 py-3 rounded-xl font-mono text-sm text-white placeholder-white/20 outline-none transition-all duration-200 disabled:opacity-50"
             style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.1)",
+              background: "var(--surface-input)",
+              border: "1px solid var(--border-input)",
             }}
             onFocus={(e) =>
               (e.currentTarget.style.borderColor = "rgba(99,102,241,0.5)")
             }
             onBlur={(e) =>
-              (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")
+              (e.currentTarget.style.borderColor = "var(--border-input)")
             }
           />
         </div>

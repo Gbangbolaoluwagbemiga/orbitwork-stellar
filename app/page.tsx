@@ -116,8 +116,8 @@ function FeatureCard({
     <div
       className="p-5 rounded-2xl text-left space-y-2 hover:scale-105 transition-transform duration-200 cursor-default"
       style={{
-        background: "rgba(255,255,255,0.025)",
-        border: "1px solid rgba(255,255,255,0.06)",
+        background: "var(--surface-card)",
+        border: "1px solid var(--border-card)",
       }}
     >
       <span className="text-2xl">{icon}</span>
@@ -154,8 +154,8 @@ function DashboardView() {
           <div
             className="rounded-2xl p-5 space-y-3 animate-fade-in-up delay-200"
             style={{
-              background: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(255,255,255,0.06)",
+              background: "var(--surface-card-alt)",
+              border: "1px solid var(--border-card)",
             }}
           >
             <h4 className="text-sm font-semibold text-white/60 uppercase tracking-wider">
@@ -219,7 +219,7 @@ function Footer() {
   return (
     <footer
       className="relative z-10 border-t py-6 px-4"
-      style={{ borderColor: "rgba(255,255,255,0.05)" }}
+      style={{ borderColor: "var(--border-subtle)" }}
     >
       <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/30">
         <p>

@@ -1,17 +1,64 @@
 @import "tailwindcss";
 
+/* ── Base design tokens (dark — default) ─────────────────────── */
 :root {
   --background: #04040f;
   --foreground: #e8e8ff;
-  --card: rgba(255, 255, 255, 0.03);
-  --border: rgba(255, 255, 255, 0.08);
   --accent: #6366f1;
   --accent-glow: rgba(99, 102, 241, 0.35);
   --cyan: #06b6d4;
   --cyan-glow: rgba(6, 182, 212, 0.35);
   --violet: #7c3aed;
+
+  /* Surfaces */
+  --surface-card: rgba(255, 255, 255, 0.025);
+  --surface-card-alt: rgba(255, 255, 255, 0.02);
+  --surface-input: rgba(255, 255, 255, 0.04);
+  --surface-nav: rgba(4, 4, 15, 0.85);
+  --surface-hover: rgba(255, 255, 255, 0.05);
+
+  /* Borders */
+  --border-card: rgba(255, 255, 255, 0.07);
+  --border-input: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-nav: rgba(255, 255, 255, 0.07);
+
+  /* Text */
+  --text-1: rgba(255, 255, 255, 1);
+  --text-2: rgba(255, 255, 255, 0.7);
+  --text-3: rgba(255, 255, 255, 0.5);
+  --text-4: rgba(255, 255, 255, 0.4);
+  --text-5: rgba(255, 255, 255, 0.3);
+
+  --stars-opacity: 1;
 }
 
+/* ── Light theme overrides ────────────────────────────────────── */
+[data-theme="light"] {
+  --background: #f4f3ff;
+  --foreground: #0f0830;
+
+  --surface-card: rgba(99, 102, 241, 0.05);
+  --surface-card-alt: rgba(99, 102, 241, 0.03);
+  --surface-input: rgba(99, 102, 241, 0.07);
+  --surface-nav: rgba(244, 243, 255, 0.92);
+  --surface-hover: rgba(99, 102, 241, 0.08);
+
+  --border-card: rgba(99, 102, 241, 0.15);
+  --border-input: rgba(99, 102, 241, 0.22);
+  --border-subtle: rgba(99, 102, 241, 0.08);
+  --border-nav: rgba(99, 102, 241, 0.12);
+
+  --text-1: #0f0830;
+  --text-2: rgba(15, 8, 48, 0.75);
+  --text-3: rgba(15, 8, 48, 0.55);
+  --text-4: rgba(15, 8, 48, 0.45);
+  --text-5: rgba(15, 8, 48, 0.35);
+
+  --stars-opacity: 0;
+}
+
+/* ── Tailwind v4 theme bridge ─────────────────────────────────── */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -19,103 +66,76 @@
   --font-mono: var(--font-geist-mono);
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  height: 100%;
-}
+/* ── Reset ────────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), -apple-system, sans-serif;
   overflow-x: hidden;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* Stars background effect */
+/* ── Stars ────────────────────────────────────────────────────── */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: radial-gradient(1px 1px at 10% 15%, rgba(255, 255, 255, 0.4) 0%, transparent 100%),
-    radial-gradient(1px 1px at 25% 40%, rgba(255, 255, 255, 0.3) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 50% 10%, rgba(255, 255, 255, 0.35) 0%, transparent 100%),
-    radial-gradient(1px 1px at 70% 60%, rgba(255, 255, 255, 0.25) 0%, transparent 100%),
-    radial-gradient(1px 1px at 85% 25%, rgba(255, 255, 255, 0.4) 0%, transparent 100%),
-    radial-gradient(1px 1px at 35% 75%, rgba(255, 255, 255, 0.3) 0%, transparent 100%),
-    radial-gradient(1px 1px at 90% 80%, rgba(255, 255, 255, 0.2) 0%, transparent 100%),
-    radial-gradient(1px 1px at 15% 90%, rgba(255, 255, 255, 0.35) 0%, transparent 100%),
-    radial-gradient(1px 1px at 60% 85%, rgba(255, 255, 255, 0.25) 0%, transparent 100%),
-    radial-gradient(1px 1px at 45% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 100%),
-    radial-gradient(1px 1px at 78% 42%, rgba(255, 255, 255, 0.3) 0%, transparent 100%),
-    radial-gradient(1px 1px at 5% 55%, rgba(255, 255, 255, 0.35) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 92% 5%, rgba(255, 255, 255, 0.4) 0%, transparent 100%),
-    radial-gradient(1px 1px at 30% 22%, rgba(255, 255, 255, 0.25) 0%, transparent 100%),
-    radial-gradient(1px 1px at 55% 68%, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+  background-image:
+    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 50% 10%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 25%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 35% 75%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 15% 90%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 85%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 50%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 78% 42%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 5% 55%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 92% 5%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 22%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 68%, rgba(255,255,255,0.3) 0%, transparent 100%);
   pointer-events: none;
   z-index: 0;
+  opacity: var(--stars-opacity);
+  transition: opacity 0.3s ease;
 }
 
-/* Animations */
+/* ── Animations ───────────────────────────────────────────────── */
 @keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes fade-in {
   from { opacity: 0; }
-  to { opacity: 1; }
+  to   { opacity: 1; }
 }
-
 @keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 20px var(--accent-glow), 0 0 60px rgba(99, 102, 241, 0.1);
-  }
-  50% {
-    box-shadow: 0 0 40px var(--accent-glow), 0 0 100px rgba(99, 102, 241, 0.2);
-  }
+  0%, 100% { box-shadow: 0 0 20px var(--accent-glow), 0 0 60px rgba(99,102,241,0.1); }
+  50%       { box-shadow: 0 0 40px var(--accent-glow), 0 0 100px rgba(99,102,241,0.2); }
 }
-
 @keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
 }
-
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  to   { transform: rotate(360deg); }
 }
-
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+  50%       { transform: translateY(-8px); }
 }
 
-/* Utility classes */
-.animate-fade-in-up {
-  animation: fade-in-up 0.6s ease-out both;
-}
-
-.animate-fade-in {
-  animation: fade-in 0.4s ease-out both;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 3s ease-in-out infinite;
-}
-
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
+/* ── Utility classes ──────────────────────────────────────────── */
+.animate-fade-in-up  { animation: fade-in-up  0.6s ease-out both; }
+.animate-fade-in     { animation: fade-in     0.4s ease-out both; }
+.animate-pulse-glow  { animation: pulse-glow  3s ease-in-out infinite; }
+.animate-float       { animation: float       4s ease-in-out infinite; }
 
 .delay-100 { animation-delay: 0.1s; }
 .delay-200 { animation-delay: 0.2s; }
@@ -123,15 +143,13 @@ body::before {
 .delay-400 { animation-delay: 0.4s; }
 .delay-500 { animation-delay: 0.5s; }
 
-/* Glass card style */
 .glass-card {
-  background: var(--card);
-  border: 1px solid var(--border);
+  background: var(--surface-card);
+  border: 1px solid var(--border-card);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
-/* Gradient text */
 .gradient-text {
   background: linear-gradient(135deg, #a78bfa 0%, #6366f1 50%, #06b6d4 100%);
   -webkit-background-clip: text;
@@ -139,15 +157,14 @@ body::before {
   background-clip: text;
 }
 
-/* Orbit ring shimmer effect */
 .shimmer-text {
   background: linear-gradient(
     90deg,
-    rgba(167, 139, 250, 0.8) 0%,
-    rgba(99, 102, 241, 1) 25%,
-    rgba(6, 182, 212, 1) 50%,
-    rgba(99, 102, 241, 1) 75%,
-    rgba(167, 139, 250, 0.8) 100%
+    rgba(167,139,250,0.8) 0%,
+    rgba(99,102,241,1) 25%,
+    rgba(6,182,212,1) 50%,
+    rgba(99,102,241,1) 75%,
+    rgba(167,139,250,0.8) 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
@@ -156,13 +173,29 @@ body::before {
   animation: shimmer 3s linear infinite;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
+/* ── Light-mode: remap white opacity text/border classes ─────── */
+[data-theme="light"] {
+  .text-white    { color: var(--text-1) !important; }
+  .text-white\/80 { color: var(--text-2) !important; }
+  .text-white\/70 { color: var(--text-2) !important; }
+  .text-white\/60 { color: var(--text-3) !important; }
+  .text-white\/50 { color: var(--text-3) !important; }
+  .text-white\/40 { color: var(--text-4) !important; }
+  .text-white\/35 { color: var(--text-4) !important; }
+  .text-white\/30 { color: var(--text-5) !important; }
+
+  .border-white\/5  { border-color: var(--border-subtle) !important; }
+  .border-white\/10 { border-color: var(--border-card) !important; }
+
+  .bg-white\/5          { background: var(--surface-hover) !important; }
+  .hover\:bg-white\/5:hover { background: var(--surface-hover) !important; }
+
+  .placeholder-white\/20::placeholder { color: var(--text-5) !important; }
 }
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+
+/* ── Scrollbar ────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: rgba(99, 102, 241, 0.4);
   border-radius: 2px;
