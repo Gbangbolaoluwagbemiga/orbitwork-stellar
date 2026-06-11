@@ -24,6 +24,11 @@
 .DS_Store
 *.pem
 
+# Claude Code internal files — never commit these
+AGENTS.md
+CLAUDE.md
+.claude/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
