@@ -18,14 +18,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const stored = localStorage.getItem("orbitwork-theme") as Theme | null;
     const initial = stored ?? "dark";
     setTheme(initial);
-    document.documentElement.setAttribute("data-theme", initial);
+    document.documentElement.classList.toggle("light", initial === "light");
   }, []);
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {
       const next: Theme = prev === "dark" ? "light" : "dark";
       localStorage.setItem("orbitwork-theme", next);
-      document.documentElement.setAttribute("data-theme", next);
+      document.documentElement.classList.toggle("light", next === "light");
       return next;
     });
   }, []);

@@ -195,14 +195,14 @@ export function SendXLMForm() {
               disabled={isLoading}
               className="w-full px-4 py-3 pr-16 rounded-xl text-sm text-white placeholder-white/20 outline-none transition-all duration-200 disabled:opacity-50"
               style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.1)",
+                background: "var(--surface-input)",
+                border: "1px solid var(--border-input)",
               }}
               onFocus={(e) =>
                 (e.currentTarget.style.borderColor = "rgba(99,102,241,0.5)")
               }
               onBlur={(e) =>
-                (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")
+                (e.currentTarget.style.borderColor = "var(--border-input)")
               }
             />
             <span
