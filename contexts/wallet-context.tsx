@@ -2,35 +2,91 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 
-interface WalletState {
+interface WalletContextType {
   address: string | null;
+  walletId: string | null;
   network: string | null;
   isConnected: boolean;
   isConnecting: boolean;
   error: string | null;
-}
-
-interface WalletContextType extends WalletState {
   connect: () => Promise<void>;
-  disconnect: () => void;
+  disconnect: () => Promise<void>;
   clearError: () => void;
 }
 
 const WalletContext = createContext<WalletContextType | null>(null);
 
+// Singleton init guard — the kit uses global signals so we only call init() once
+let _kitReady = false;
+
+async function getKit() {
+  const { StellarWalletsKit, Networks } = await import(
+    "@creit.tech/stellar-wallets-kit"
+  );
+
+  if (!_kitReady) {
+    const { FreighterModule } = await import(
+      "@creit.tech/stellar-wallets-kit/modules/freighter"
+    );
+    const { AlbedoModule } = await import(
+      "@creit.tech/stellar-wallets-kit/modules/albedo"
+    );
+    const { RabetModule } = await import(
+      "@creit.tech/stellar-wallets-kit/modules/rabet"
+    );
+    const { xBullModule } = await import(
+      "@creit.tech/stellar-wallets-kit/modules/xbull"
+    );
+    const { HanaModule } = await import(
+      "@creit.tech/stellar-wallets-kit/modules/hana"
+    );
+    const { LobstrModule } = await import(
+      "@creit.tech/stellar-wallets-kit/modules/lobstr"
+    );
+
+    StellarWalletsKit.init({
+      network: Networks.TESTNET,
+      modules: [
+        new FreighterModule(),
+        new AlbedoModule(),
+        new RabetModule(),
+        new xBullModule(),
+        new HanaModule(),
+        new LobstrModule(),
+      ],
+    });
+
+    _kitReady = true;
+  }
+
+  return StellarWalletsKit;
+}
+
 export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [address, setAddress] = useState<string | null>(null);
-  const [network, setNetwork] = useState<string | null>(null);
+  const [walletId, setWalletId] = useState<string | null>(null);
+  const [network] = useState<string>("TESTNET");
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Restore session on mount
+  // Restore session from kit's own localStorage on mount
   useEffect(() => {
-    const saved = localStorage.getItem("ow_wallet_address");
-    if (saved) {
-      setAddress(saved);
-      setNetwork("TESTNET");
-    }
+    (async () => {
+      try {
+        const kit = await getKit();
+        const { address: saved } = await kit.getAddress();
+        if (saved) {
+          setAddress(saved);
+          // Restore the wallet ID from kit state
+          const { selectedModuleId } = await import(
+            "@creit.tech/stellar-wallets-kit/state"
+          );
+          setWalletId(selectedModuleId.value ?? null);
+        }
+      } catch {
+        // No previous session — normal on first visit
+      }
+    })();
   }, []);
 
   const connect = useCallback(async () => {
@@ -38,48 +94,38 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     setError(null);
 
     try {
-      const freighter = await import("@stellar/freighter-api");
+      const kit = await getKit();
 
-      // Check if Freighter is installed
-      const connResult = await freighter.isConnected();
-      const installed =
-        typeof connResult === "boolean" ? connResult : connResult.isConnected;
+      // authModal renders the kit's wallet picker UI and resolves with { address }
+      const { address: addr } = await kit.authModal({});
 
-      if (!installed) {
-        throw new Error(
-          "Freighter wallet not found. Please install it from freighter.app"
-        );
-      }
-
-      // Request access — this shows the Freighter popup
-      const accessResult = await freighter.requestAccess();
-      const addr =
-        typeof accessResult === "string" ? accessResult : accessResult.address;
-
-      if (!addr) throw new Error("No address returned from Freighter");
-
-      // Get network info
-      const netResult = await freighter.getNetwork();
-      const net =
-        typeof netResult === "string" ? netResult : netResult.network;
+      const { selectedModuleId } = await import(
+        "@creit.tech/stellar-wallets-kit/state"
+      );
 
       setAddress(addr);
-      setNetwork(net || "TESTNET");
-      localStorage.setItem("ow_wallet_address", addr);
+      setWalletId(selectedModuleId.value ?? null);
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Failed to connect wallet";
-      setError(msg);
+      // User closed the modal without connecting — not an error
+      const msg = err instanceof Error ? err.message : String(err);
+      if (!msg.toLowerCase().includes("closed")) {
+        setError(msg || "Failed to connect wallet");
+      }
     } finally {
       setIsConnecting(false);
     }
   }, []);
 
-  const disconnect = useCallback(() => {
+  const disconnect = useCallback(async () => {
+    try {
+      const kit = await getKit();
+      await kit.disconnect();
+    } catch {
+      // ignore disconnect errors
+    }
     setAddress(null);
-    setNetwork(null);
+    setWalletId(null);
     setError(null);
-    localStorage.removeItem("ow_wallet_address");
   }, []);
 
   const clearError = useCallback(() => setError(null), []);
@@ -88,6 +134,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     <WalletContext.Provider
       value={{
         address,
+        walletId,
         network,
         isConnected: !!address,
         isConnecting,

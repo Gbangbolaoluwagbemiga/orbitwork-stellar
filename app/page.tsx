@@ -68,7 +68,7 @@ function LandingView() {
 
       {/* Description */}
       <p className="mt-6 max-w-lg text-white/40 leading-relaxed animate-fade-in-up delay-200">
-        Connect your Freighter wallet to check your balance, send XLM
+        Connect any Stellar wallet to check your balance, send XLM
         transactions on Stellar Testnet, and track your payment history — all
         in one orbit.
       </p>
@@ -77,15 +77,7 @@ function LandingView() {
       <div className="mt-10 animate-fade-in-up delay-300">
         <WalletButton />
         <p className="mt-3 text-xs text-white/30">
-          Requires{" "}
-          <a
-            href="https://www.freighter.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline text-white/40 hover:text-white/60 transition-colors"
-          >
-            Freighter browser extension
-          </a>
+          Supports Freighter · Albedo · xBull · Rabet · Hana · LOBSTR
         </p>
       </div>
 
@@ -93,8 +85,8 @@ function LandingView() {
       <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl w-full animate-fade-in-up delay-400">
         <FeatureCard
           icon="🔗"
-          title="Wallet Connect"
-          desc="Connect and disconnect your Freighter wallet securely"
+          title="Multi-Wallet"
+          desc="Freighter, Albedo, xBull, Rabet, Hana, LOBSTR — your choice"
         />
         <FeatureCard
           icon="💠"

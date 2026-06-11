@@ -87,15 +87,16 @@ export async function sendXLM(
 
   const transaction = builder.setTimeout(30).build();
 
-  // Sign with Freighter
-  const { signTransaction } = await import("@stellar/freighter-api");
+  // Sign via StellarWalletsKit — works for any connected wallet (Freighter,
+  // Albedo, xBull, Rabet, Hana, LOBSTR, etc.)
+  const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit");
 
-  const signResult = await signTransaction(transaction.toXDR(), {
-    networkPassphrase: NETWORK_PASSPHRASE,
-  });
+  const { signedTxXdr } = await StellarWalletsKit.signTransaction(
+    transaction.toXDR(),
+    { networkPassphrase: NETWORK_PASSPHRASE }
+  );
 
-  const signedXdr =
-    typeof signResult === "string" ? signResult : signResult.signedTxXdr;
+  const signedXdr = signedTxXdr;
 
   if (!signedXdr) {
     throw new Error("Transaction signing was rejected or failed");

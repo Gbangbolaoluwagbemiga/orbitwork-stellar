@@ -52,8 +52,8 @@ export function WalletButton() {
           </>
         ) : (
           <>
-            <FreighterIcon />
-            Connect Freighter
+            <WalletIcon />
+            Connect Wallet
           </>
         )}
       </span>
@@ -61,16 +61,12 @@ export function WalletButton() {
   );
 }
 
-function FreighterIcon() {
+function WalletIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="2" />
+      <path d="M16 12a1 1 0 1 0 2 0 1 1 0 0 0-2 0z" fill="currentColor" />
+      <path d="M2 9h20" stroke="currentColor" strokeWidth="2" />
     </svg>
   );
 }
