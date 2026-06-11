@@ -64,6 +64,23 @@ async function getKit() {
   return StellarWalletsKit;
 }
 
+function extractMessage(err: unknown): string {
+  if (!err) return "";
+  if (typeof err === "string") return err;
+  if (err instanceof Error) return err.message;
+  // Kit throws plain objects like { code: -1, message: "..." }
+  const obj = err as Record<string, unknown>;
+  if (typeof obj.message === "string") return obj.message;
+  return "";
+}
+
+const SILENT_PATTERNS = ["closed", "cancel", "dismiss", "reject", "user denied", "disconnected port"];
+
+function isSilentClose(msg: string): boolean {
+  const lower = msg.toLowerCase();
+  return !msg || SILENT_PATTERNS.some((p) => lower.includes(p));
+}
+
 export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [address, setAddress] = useState<string | null>(null);
   const [walletId, setWalletId] = useState<string | null>(null);
@@ -108,9 +125,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       setAddress(addr);
       setWalletId(selectedModuleId.value ?? null);
     } catch (err: unknown) {
-      // User closed the modal without connecting — not an error
-      const msg = err instanceof Error ? err.message : String(err);
-      if (!msg.toLowerCase().includes("closed")) {
+      const msg = extractMessage(err);
+      // Silence dismissals — kit throws plain objects or strings for close/cancel
+      if (!isSilentClose(msg)) {
         setError(msg || "Failed to connect wallet");
       }
     } finally {
