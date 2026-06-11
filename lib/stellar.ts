@@ -35,12 +35,74 @@ export interface SendResult {
   ledger?: number;
 }
 
+/** Parses Horizon BadResponseError and returns a human-readable message. */
+function parseHorizonError(err: unknown): string {
+  if (!err || typeof err !== "object") return "Transaction failed";
+
+  // Horizon BadResponseError from stellar-sdk
+  const e = err as {
+    response?: {
+      data?: {
+        extras?: {
+          result_codes?: {
+            transaction?: string;
+            operations?: string[];
+          };
+        };
+      };
+    };
+    message?: string;
+  };
+
+  const codes = e.response?.data?.extras?.result_codes;
+  if (codes) {
+    const txCode = codes.transaction ?? "";
+    const opCodes = codes.operations?.join(", ") ?? "";
+    const detail = [txCode, opCodes].filter(Boolean).join(" — ops: ");
+
+    const friendly: Record<string, string> = {
+      tx_bad_auth:
+        "Signature invalid — make sure Freighter is set to Testnet, not Mainnet",
+      tx_bad_seq:
+        "Sequence number mismatch — please reload and try again",
+      tx_insufficient_fee: "Fee too low — please try again",
+      op_no_destination:
+        "Destination account does not exist on testnet",
+      op_underfunded: "Insufficient XLM balance",
+      op_low_reserve:
+        "Amount too low — new accounts need at least 1 XLM",
+    };
+
+    const readable =
+      friendly[txCode] ??
+      codes.operations?.map((c) => friendly[c] ?? c).join("; ") ??
+      detail;
+
+    return readable || "Transaction rejected by Stellar network";
+  }
+
+  // Plain object thrown by StellarWalletsKit (e.g. {code: -3, message: "..."})
+  const kitErr = err as { message?: string; code?: number };
+  if (kitErr.message) return kitErr.message;
+
+  if (e.message) return e.message;
+  return "Transaction failed — check console for details";
+}
+
+/**
+ * Builds a Stellar transaction and signs + submits it.
+ *
+ * `signFn` is injected from the wallet context so that signing always goes
+ * through a fully-initialised StellarWalletsKit instance — avoiding the race
+ * where stellar.ts imports the kit before modules are registered.
+ */
 export async function sendXLM(
   sourceAddress: string,
   destination: string,
-  amount: string
+  amount: string,
+  signFn: (xdr: string) => Promise<string>
 ): Promise<SendResult> {
-  // Validate destination
+  // ── Validation ──────────────────────────────────────────────────────────
   if (!StellarSdk.StrKey.isValidEd25519PublicKey(destination)) {
     throw new Error("Invalid destination Stellar address");
   }
@@ -52,8 +114,14 @@ export async function sendXLM(
 
   const server = getServer();
 
-  // Check destination exists; if not, use createAccount op instead of payment
+  // ── Operation selection ──────────────────────────────────────────────────
   const destExists = await accountExists(destination);
+
+  if (!destExists && amountNum < 1) {
+    throw new Error(
+      "New accounts require a minimum of 1 XLM to activate on-chain"
+    );
+  }
 
   const account = await server.loadAccount(sourceAddress);
 
@@ -71,12 +139,6 @@ export async function sendXLM(
       })
     );
   } else {
-    // createAccount requires minimum 1 XLM
-    if (amountNum < 1) {
-      throw new Error(
-        "New accounts require a minimum of 1 XLM to be created on-chain"
-      );
-    }
     builder.addOperation(
       StellarSdk.Operation.createAccount({
         destination,
@@ -87,33 +149,32 @@ export async function sendXLM(
 
   const transaction = builder.setTimeout(30).build();
 
-  // Sign via StellarWalletsKit — works for any connected wallet (Freighter,
-  // Albedo, xBull, Rabet, Hana, LOBSTR, etc.)
-  const { StellarWalletsKit } = await import("@creit.tech/stellar-wallets-kit");
-
-  const { signedTxXdr } = await StellarWalletsKit.signTransaction(
-    transaction.toXDR(),
-    { networkPassphrase: NETWORK_PASSPHRASE }
-  );
-
-  const signedXdr = signedTxXdr;
-
-  if (!signedXdr) {
-    throw new Error("Transaction signing was rejected or failed");
+  // ── Sign ────────────────────────────────────────────────────────────────
+  let signedXdr: string;
+  try {
+    signedXdr = await signFn(transaction.toXDR());
+  } catch (err) {
+    // Convert kit plain-object errors to proper Error
+    const msg = parseHorizonError(err);
+    throw new Error(msg);
   }
 
+  if (!signedXdr) {
+    throw new Error("Signing was cancelled or returned no result");
+  }
+
+  // ── Submit ───────────────────────────────────────────────────────────────
   const signedTx = StellarSdk.TransactionBuilder.fromXDR(
     signedXdr,
     NETWORK_PASSPHRASE
   );
 
-  const response = await server.submitTransaction(signedTx);
-
-  return {
-    hash: response.hash,
-    success: true,
-    ledger: response.ledger,
-  };
+  try {
+    const response = await server.submitTransaction(signedTx);
+    return { hash: response.hash, success: true, ledger: response.ledger };
+  } catch (err) {
+    throw new Error(parseHorizonError(err));
+  }
 }
 
 export function shortAddress(address: string): string {

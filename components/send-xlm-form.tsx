@@ -12,7 +12,7 @@ interface TxResult {
 }
 
 export function SendXLMForm() {
-  const { address } = useWallet();
+  const { address, sign } = useWallet();
   const [destination, setDestination] = useState("");
   const [amount, setAmount] = useState("");
   const [status, setStatus] = useState<TxStatus>("idle");
@@ -36,10 +36,15 @@ export function SendXLMForm() {
     setStatus("signing");
 
     try {
-      // Signing happens inside sendXLM (Freighter popup)
-      setStatus("submitting");
-      const res = await sendXLM(address, destination.trim(), amount.trim());
-      setResult(res);
+      // Wrap sign so we can flip the status to "submitting" right after the
+      // wallet popup closes and before Horizon receives the transaction.
+      const signAndTrack = async (xdr: string) => {
+        const signed = await sign(xdr);
+        setStatus("submitting");
+        return signed;
+      };
+      const res = await sendXLM(address, destination.trim(), amount.trim(), signAndTrack);
+      setResult({ hash: res.hash, ledger: res.ledger });
       setStatus("success");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Transaction failed";
