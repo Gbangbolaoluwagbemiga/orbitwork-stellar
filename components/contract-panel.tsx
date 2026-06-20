@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useWallet } from "@/contexts/wallet-context";
+import { getXLMBalance } from "@/lib/stellar";
 import {
   createOrder,
   getOrderCount,
@@ -16,6 +17,7 @@ import {
 } from "@/lib/contract";
 
 type TxStatus = "idle" | "signing" | "submitting" | "success" | "error";
+type ErrorType = "wallet_not_found" | "wrong_network" | "rejected" | "insufficient" | "contract" | null;
 
 export function ContractPanel() {
   const { address, sign, isConnected } = useWallet();
@@ -27,9 +29,17 @@ export function ContractPanel() {
   const [txHash, setTxHash] = useState<string | null>(null);
   const [newOrderId, setNewOrderId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [errorType, setErrorType] = useState<
-    "wallet_not_found" | "rejected" | "insufficient" | "contract" | null
-  >(null);
+  const [errorType, setErrorType] = useState<ErrorType>(null);
+
+  // ── Balance ───────────────────────────────────────────────────
+  const [balance, setBalance] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!address) return;
+    getXLMBalance(address)
+      .then(setBalance)
+      .catch(() => null);
+  }, [address]);
 
   // ── Contract data ──────────────────────────────────────────────
   const [orderCount, setOrderCount] = useState<number | null>(null);
@@ -72,7 +82,9 @@ export function ContractPanel() {
 
   const classifyError = (msg: string) => {
     const m = msg.toLowerCase();
-    if (m.includes("not found") || m.includes("not installed") || m.includes("wallet")) {
+    if (m.startsWith("freighter is set to") || m.includes("wrong network") || m.includes("mainnet")) {
+      setErrorType("wrong_network");
+    } else if (m.includes("not found") || m.includes("not installed")) {
       setErrorType("wallet_not_found");
     } else if (
       m.includes("rejected") ||
@@ -158,6 +170,14 @@ export function ContractPanel() {
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
+          {balance !== null && (
+            <div className="text-center">
+              <p className="text-lg font-bold" style={{ color: "#a78bfa" }}>
+                {parseFloat(balance).toFixed(2)}
+              </p>
+              <p className="text-xs text-white/40">XLM</p>
+            </div>
+          )}
           <div className="text-center">
             <p className="text-2xl font-bold text-indigo-400">
               {orderCount ?? "—"}
@@ -469,14 +489,13 @@ export function ContractPanel() {
 
 /* ── Sub-components ─────────────────────────────────────────────── */
 
-function ErrorCard({
-  type,
-  message,
-}: {
-  type: "wallet_not_found" | "rejected" | "insufficient" | "contract" | null;
-  message: string;
-}) {
+function ErrorCard({ type, message }: { type: ErrorType; message: string }) {
   const labels: Record<string, { badge: string; hint: string; color: string }> = {
+    wrong_network: {
+      badge: "Wrong Network",
+      hint: "Open Freighter → click the network name → select \"Test SDF Network\" (Testnet)",
+      color: "#f97316",
+    },
     wallet_not_found: {
       badge: "Wallet Not Found",
       hint: "Install Freighter or another Stellar wallet extension",
