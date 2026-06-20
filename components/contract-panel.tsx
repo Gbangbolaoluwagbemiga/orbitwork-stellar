@@ -84,6 +84,8 @@ export function ContractPanel() {
     const m = msg.toLowerCase();
     if (m.startsWith("freighter is set to") || m.includes("wrong network") || m.includes("mainnet")) {
       setErrorType("wrong_network");
+    } else if (m.includes("account not found") || m.includes("fund it via") || m.includes("faucet")) {
+      setErrorType("insufficient");
     } else if (m.includes("not found") || m.includes("not installed")) {
       setErrorType("wallet_not_found");
     } else if (
@@ -507,8 +509,8 @@ function ErrorCard({ type, message }: { type: ErrorType; message: string }) {
       color: "#ef4444",
     },
     insufficient: {
-      badge: "Insufficient Balance",
-      hint: "Top up via the Stellar Testnet Faucet",
+      badge: "Account Not Funded",
+      hint: "Use the Stellar Testnet Faucet link above to fund your wallet, then try again",
       color: "#eab308",
     },
     contract: {

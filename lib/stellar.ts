@@ -14,10 +14,17 @@ function getServer(): StellarSdk.Horizon.Server {
 }
 
 export async function getXLMBalance(address: string): Promise<string> {
-  const server = getServer();
-  const account = await server.loadAccount(address);
-  const native = account.balances.find((b) => b.asset_type === "native");
-  return native ? parseFloat(native.balance).toFixed(7) : "0.0000000";
+  try {
+    const server = getServer();
+    const account = await server.loadAccount(address);
+    const native = account.balances.find((b) => b.asset_type === "native");
+    return native ? parseFloat(native.balance).toFixed(7) : "0.0000000";
+  } catch (err: unknown) {
+    // Horizon 404 = account exists on the ledger but has never been funded
+    const status = (err as { response?: { status?: number } })?.response?.status;
+    if (status === 404) return "0.0000000";
+    throw err;
+  }
 }
 
 export async function accountExists(address: string): Promise<boolean> {
