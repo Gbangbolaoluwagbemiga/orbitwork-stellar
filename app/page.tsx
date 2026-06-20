@@ -6,6 +6,7 @@ import { Navbar } from "@/components/navbar";
 import { BalanceCard } from "@/components/balance-card";
 import { SendXLMForm } from "@/components/send-xlm-form";
 import { WalletButton } from "@/components/wallet-button";
+import { ContractPanel } from "@/components/contract-panel";
 
 export default function Home() {
   const { isConnected, error, clearError } = useWallet();
@@ -188,9 +189,30 @@ function DashboardView() {
         </div>
       </div>
 
+      {/* Contract section */}
+      <div className="space-y-4 animate-fade-in-up delay-300">
+        <div className="flex items-center gap-3">
+          <div
+            className="h-px flex-1"
+            style={{ background: "var(--border-card)" }}
+          />
+          <span
+            className="text-xs font-semibold uppercase tracking-widest px-3"
+            style={{ color: "var(--text-4)" }}
+          >
+            Stellar Smart Contract
+          </span>
+          <div
+            className="h-px flex-1"
+            style={{ background: "var(--border-card)" }}
+          />
+        </div>
+        <ContractPanel />
+      </div>
+
       {/* Stellar info banner */}
       <div
-        className="rounded-2xl p-5 flex items-center gap-4 animate-fade-in-up delay-300"
+        className="rounded-2xl p-5 flex items-center gap-4 animate-fade-in-up delay-400"
         style={{
           background:
             "linear-gradient(135deg, rgba(99,102,241,0.07) 0%, rgba(6,182,212,0.05) 100%)",
@@ -232,7 +254,7 @@ function Footer() {
           >
             Stellar
           </a>{" "}
-          · White Belt – Level 1 Submission
+          · Yellow Belt – Level 2
         </p>
         <div className="flex items-center gap-4">
           <a

@@ -47,3 +47,6 @@ next-env.d.ts
 
 # empty scaffold directories
 hooks/
+
+# Rust contract build artifacts
+contracts/*/target/
