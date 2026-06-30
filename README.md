@@ -2,16 +2,89 @@
 
 <div align="center">
 
-**A Stellar-powered payments dApp — connect your Freighter wallet, check your XLM balance, and send transactions on Stellar Testnet.**
+**A Stellar-powered freelance payments dApp — connect your wallet, check your XLM balance, send transactions, and interact with a live Soroban smart contract on Stellar Testnet.**
 
 [![Stellar](https://img.shields.io/badge/Stellar-Testnet-7D00FF?style=flat-square&logo=stellar)](https://stellar.org)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com)
+[![Soroban](https://img.shields.io/badge/Soroban-Smart%20Contracts-FF6B6B?style=flat-square)](https://soroban.stellar.org)
 
-> **Rise In — Stellar Journey to Mastery · White Belt Level 1 Submission**
+> **Rise In — Stellar Journey to Mastery · Yellow Belt Level 2 Submission**
 
 </div>
+
+---
+
+## Smart Contract (Yellow Belt Level 2)
+
+### Deployed Contract
+
+| Field | Value |
+|---|---|
+| **Contract ID** | `CBWAGSMUHYU2LNFGQ6CJ4B6DCUJILOZZU4GNIGCYYWWQQBGCUOL3Q43H` |
+| **Network** | Stellar Testnet |
+| **Deploy Transaction** | `15bdf15b5a255c608603c4d3a9f716ec0eeb1b99fb57e8f6924b395da08f2e79` |
+
+### Contract Call Transaction
+
+A `create_order` call was made on-chain to demonstrate real Soroban contract interaction:
+
+| Field | Value |
+|---|---|
+| **Function** | `create_order` |
+| **Transaction Hash** | `5322718448f82a2a65c8a7f1ce2b3424f07319babaa5777d55054cdcedc03652` |
+| **Result** | Order #2 created — "Yellow Belt Level 2 - OrbitWork Registry Demo" |
+| **Explorer** | [View on Stellar Expert](https://stellar.expert/explorer/testnet/tx/5322718448f82a2a65c8a7f1ce2b3424f07319babaa5777d55054cdcedc03652) |
+
+### Contract Overview
+
+The **OrbitRegistry** Soroban contract is a work-order registry that stores freelance job orders on-chain. It demonstrates:
+
+- `create_order(client, title, amount)` — writes a `WorkOrder` struct to persistent ledger storage, emits a `created` event, returns an auto-incremented order ID
+- `get_order(id)` — reads a work order by ID
+- `get_count()` — returns total number of orders stored
+
+```rust
+#[contracttype]
+pub struct WorkOrder {
+    pub id: u64,
+    pub client: Address,
+    pub title: String,
+    pub amount: i128,    // stroops (1 XLM = 10_000_000)
+    pub status: u32,     // 0=open, 1=completed, 2=cancelled
+    pub created_at: u64,
+}
+```
+
+Source: [`contracts/orbit-registry/src/lib.rs`](contracts/orbit-registry/src/lib.rs)
+
+### Calling the Contract (CLI)
+
+```bash
+# Deploy
+stellar contract deploy \
+  --wasm contracts/orbit-registry/target/wasm32-unknown-unknown/release/orbit_registry.wasm \
+  --source me \
+  --network testnet
+
+# Invoke create_order
+stellar contract invoke \
+  --id CBWAGSMUHYU2LNFGQ6CJ4B6DCUJILOZZU4GNIGCYYWWQQBGCUOL3Q43H \
+  --source me \
+  --network testnet \
+  --send=yes \
+  -- create_order \
+  --client <YOUR_STELLAR_ADDRESS> \
+  --title "My First Work Order" \
+  --amount 1000000000
+
+# Read order count
+stellar contract invoke \
+  --id CBWAGSMUHYU2LNFGQ6CJ4B6DCUJILOZZU4GNIGCYYWWQQBGCUOL3Q43H \
+  --source me \
+  --network testnet \
+  -- get_count
+```
 
 ---
 
@@ -19,14 +92,14 @@
 
 - [Overview](#overview)
 - [Live Demo](#live-demo)
-- [Features](#features)
+- [Yellow Belt Level 2 Features](#yellow-belt-level-2-features)
+- [Smart Contract](#smart-contract-yellow-belt-level-2)
 - [Tech Stack](#tech-stack)
 - [Architecture](#architecture)
 - [Getting Started](#getting-started)
 - [Usage Guide](#usage-guide)
-- [Project Structure](#project-structure)
+- [Error Handling](#error-handling)
 - [Stellar Integration Details](#stellar-integration-details)
-- [Screenshots](#screenshots)
 - [What I Learned](#what-i-learned)
 - [Roadmap](#roadmap)
 
@@ -34,15 +107,17 @@
 
 ## Overview
 
-OrbitWork is a decentralized application (dApp) built on the **Stellar blockchain** as the White Belt Level 1 submission for the Rise In *Stellar Journey to Mastery* program.
+OrbitWork is a decentralized application (dApp) built on the **Stellar blockchain** as the Yellow Belt Level 2 submission for the Rise In *Stellar Journey to Mastery* program.
 
-The core objective of this level was to demonstrate mastery of the fundamental building blocks of Stellar development:
+This level builds on White Belt fundamentals, adding:
 
-- **Wallet connectivity** via the Freighter browser extension
-- **Balance fetching** from Stellar Horizon API
-- **XLM transactions** on Stellar Testnet with real-time feedback
+- **Multi-wallet support** via StellarWalletsKit (Freighter, xBull, LOBSTR, and more)
+- **Soroban smart contract** deployed on Stellar Testnet and called from the frontend
+- **Real-time contract events** streamed via Soroban RPC
+- **Transaction status tracking** with live progress states
+- **3 distinct error types** classified and handled for clear UX
 
-The name **OrbitWork** reflects the mission: work that revolves around a trustless, decentralized financial core — just like a satellite orbiting a planet. The logo animates this concept literally, with a glowing cyan satellite orbiting a violet planet.
+The name **OrbitWork** reflects the mission: work that revolves around a trustless, decentralized financial core. The platform is evolving into a full freelance marketplace on Stellar with Soroban escrow payments.
 
 ---
 
@@ -52,38 +127,44 @@ The name **OrbitWork** reflects the mission: work that revolves around a trustle
 
 ---
 
-## Features
+## Yellow Belt Level 2 Features
 
-### ✅ Wallet Setup & Connection
-- Detects whether the **Freighter** extension is installed
-- Prompts installation with a direct link if not found
-- **Connect wallet** — triggers Freighter permission popup
-- **Disconnect wallet** — clears session state (address removed from localStorage)
-- Session persistence: previously connected address is restored on page refresh
+### ✅ Multi-Wallet Support
+- **StellarWalletsKit** integration supports multiple wallet providers
+- Wallet selection modal with visual wallet picker
+- Freighter, xBull, LOBSTR wallets detected and listed
+- Graceful fallback messaging when no wallet is installed
 
-### ✅ Balance Display
-- Fetches live **XLM balance** from Stellar Horizon Testnet API
-- Auto-refreshes every **30 seconds** to stay current
-- Manual refresh button for on-demand updates
-- Displays full 7-decimal precision XLM balance
-- Displays full wallet public key alongside short-form address
+### ✅ Soroban Smart Contract Deployed on Testnet
+- `OrbitRegistry` contract deployed at `CBWAGSMUHYU2LNFGQ6CJ4B6DCUJILOZZU4GNIGCYYWWQQBGCUOL3Q43H`
+- Built with **Soroban SDK v22.0.0** in Rust
+- Stores `WorkOrder` structs in persistent ledger storage with TTL extension
+- Emits on-chain events for every created order
 
-### ✅ XLM Transaction Flow
-- Input form for **destination address** and **amount**
-- Validates destination as a valid Stellar Ed25519 public key before submitting
-- Automatically handles **new vs. existing accounts** (`createAccount` op for unfunded accounts, `payment` op for funded ones)
-- Triggers **Freighter signing popup** — user signs without ever exposing their private key
-- Submits signed transaction to Stellar Horizon Testnet
-- Displays full **transaction hash** on success
-- Provides direct link to **Stellar Expert Explorer** to verify the transaction on-chain
-- Shows clear **error messages** for: rejected signatures, invalid addresses, insufficient funds, network errors
+### ✅ Contract Called From Frontend
+- `createOrder()` in `lib/contract.ts` builds, simulates, assembles, signs, and submits a Soroban transaction
+- Full Soroban RPC flow: simulate → assemble (adds footprint + resource fee) → sign → submit → poll
+- Users fill a form in the Contract Panel and call the contract directly from the browser
 
-### ✅ Developer Standards
-- Full TypeScript — strongly typed throughout
-- Server/client boundary clearly separated — all blockchain calls use `"use client"` components
-- React Context for wallet state — clean, prop-free state sharing
-- Every async operation wrapped in try/catch with user-friendly error messaging
-- Responsive design — works on mobile, tablet, and desktop
+### ✅ Transaction Status Visible
+- Transaction state machine: **idle → signing → submitting → success / error**
+- Success panel shows transaction hash with a direct Stellar Expert Explorer link
+- Polling `rpc.getTransaction(hash)` until `SUCCESS` or `FAILED` status
+
+### ✅ Real-Time Event Integration
+- `fetchContractEvents()` polls Soroban RPC for `created` events from the contract
+- Event feed auto-refreshes every 15 seconds in the Contract Panel
+- Each event displays order ID, amount, title, ledger number, and tx hash
+
+### ✅ 3 Error Types Handled
+
+| Error Type | Trigger | User Message |
+|---|---|---|
+| `wallet_not_found` | Freighter / wallet not installed | "Wallet extension not found — install Freighter" |
+| `rejected` | User cancels Freighter signing popup | "Transaction rejected — you cancelled the request" |
+| `insufficient` | Account unfunded (Horizon 404) | "Account not funded — use the testnet faucet first" |
+
+Plus `wrong_network` (Freighter set to Mainnet) and generic `contract` errors as bonus.
 
 ---
 
@@ -94,9 +175,12 @@ The name **OrbitWork** reflects the mission: work that revolves around a trustle
 | Framework | Next.js 16 (App Router) |
 | Language | TypeScript 5 |
 | Styling | Tailwind CSS 4 |
-| Wallet | Freighter API v6 (`@stellar/freighter-api`) |
+| Wallet | StellarWalletsKit + Freighter API v6 |
 | Blockchain SDK | Stellar SDK v15 (`@stellar/stellar-sdk`) |
-| Network | Stellar Testnet (Horizon: `horizon-testnet.stellar.org`) |
+| Smart Contracts | Soroban SDK v22 (Rust) |
+| RPC | Soroban RPC (`https://soroban-testnet.stellar.org`) |
+| Horizon | `https://horizon-testnet.stellar.org` |
+| Network | Stellar Testnet |
 | Deployment | Vercel |
 
 ---
@@ -106,47 +190,57 @@ The name **OrbitWork** reflects the mission: work that revolves around a trustle
 ```
 OrbitWork
 │
+├── contracts/
+│   └── orbit-registry/
+│       ├── Cargo.toml             # Soroban contract manifest
+│       └── src/lib.rs             # OrbitRegistry contract (Rust)
+│
 ├── contexts/
-│   └── wallet-context.tsx     # React Context — wallet state, connect, disconnect
+│   └── wallet-context.tsx         # React Context — wallet state, connect, disconnect
 │
 ├── lib/
-│   └── stellar.ts             # Pure functions: getXLMBalance, sendXLM, helpers
+│   ├── stellar.ts                 # Horizon: getXLMBalance, sendXLM, helpers
+│   └── contract.ts                # Soroban RPC: getOrderCount, getOrder, createOrder, fetchContractEvents
 │
 ├── components/
-│   ├── orbit-logo.tsx         # Animated SVG orbital logo (planet + satellite)
-│   ├── navbar.tsx             # Top navigation bar
-│   ├── wallet-button.tsx      # Connect / disconnect button with states
-│   ├── balance-card.tsx       # XLM balance display + auto-refresh
-│   └── send-xlm-form.tsx      # Transaction form + success/error states
+│   ├── orbit-logo.tsx             # Animated SVG orbital logo
+│   ├── navbar.tsx                 # Top navigation
+│   ├── wallet-button.tsx          # Connect / disconnect with wallet modal
+│   ├── balance-card.tsx           # XLM balance + faucet link
+│   ├── send-xlm-form.tsx          # XLM payment form
+│   └── contract-panel.tsx         # Soroban contract UI (create order, event feed)
 │
 └── app/
-    ├── layout.tsx             # Root layout — wraps app with WalletProvider
-    ├── globals.css            # Global styles, CSS animations, space theme
-    └── page.tsx               # Main page — Landing (unauthenticated) / Dashboard (connected)
+    ├── layout.tsx                 # Root layout with WalletProvider
+    ├── globals.css                # Dark space theme, keyframe animations
+    └── page.tsx                   # Landing / Dashboard
 ```
 
-### Data Flow
+### Soroban Transaction Flow
 
 ```
-User clicks "Connect Freighter"
+User fills "Create Order" form in ContractPanel
     │
     ▼
-WalletContext.connect()
-    │ calls isConnected()   → checks Freighter extension is installed
-    │ calls requestAccess() → Freighter permission popup
-    │ stores address in React state + localStorage
-    ▼
-Dashboard renders
+createOrder({ clientAddress, title, amountXlm, signFn })
     │
-    ├─ BalanceCard mounts
-    │       └─ getXLMBalance(address) → Horizon Testnet API → display balance
+    ├─ rpc.getAccount(clientAddress)         → unfunded? throw "insufficient"
     │
-    └─ SendXLMForm submit
-            │ validate destination + amount
-            │ build TransactionBuilder (payment or createAccount op)
-            │ signTransaction(xdr) → Freighter signing popup
-            │ submitTransaction(signedTx) → Horizon Testnet
-            └─ display tx hash + Stellar Expert Explorer link
+    ├─ TransactionBuilder + contract.call("create_order", ...)
+    │
+    ├─ rpc.simulateTransaction(tx)           → get footprint + resource fee
+    │       └─ isSimulationError? → throw error
+    │
+    ├─ SorobanRpc.assembleTransaction(tx, sim).build()
+    │
+    ├─ signFn(assembled.toXDR())             → Freighter signing popup
+    │       └─ user rejects? → throw "rejected"
+    │
+    ├─ rpc.sendTransaction(signedTx)         → submit to Stellar Testnet
+    │
+    └─ poll rpc.getTransaction(hash) every 1.5s
+            └─ SUCCESS → return { hash, orderId }
+            └─ FAILED  → throw "Transaction failed on-chain"
 ```
 
 ---
@@ -160,11 +254,13 @@ Dashboard renders
 | Node.js 18+ | LTS recommended |
 | npm 9+ | Bundled with Node |
 | Freighter wallet | Install from [freighter.app](https://www.freighter.app/) |
+| Rust + cargo | Only needed to rebuild the contract |
+| Stellar CLI | Only needed to redeploy the contract |
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/orbitwork.git
+git clone https://github.com/Gbangbolaoluwagbemiga/orbitwork.git
 cd orbitwork
 ```
 
@@ -186,15 +282,29 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 1. Open the **Freighter** browser extension
 2. Go to **Settings → Network → Testnet**
-3. Create or import a Stellar wallet if you haven't already
+3. Create or import a Stellar wallet
 
 ### 5. Fund your testnet account
-
-Get free testnet XLM from the Stellar Friendbot (also accessible via the in-app link):
 
 ```
 https://laboratory.stellar.org/#account-creator?network=test
 ```
+
+Or click the **faucet link** on the Balance Card in the app.
+
+### 6. (Optional) Rebuild and redeploy the contract
+
+```bash
+cd contracts/orbit-registry
+cargo build --target wasm32-unknown-unknown --release
+
+stellar contract deploy \
+  --wasm target/wasm32-unknown-unknown/release/orbit_registry.wasm \
+  --source me \
+  --network testnet
+```
+
+Then update `CONTRACT_ID` in [`lib/contract.ts`](lib/contract.ts).
 
 ---
 
@@ -202,220 +312,165 @@ https://laboratory.stellar.org/#account-creator?network=test
 
 ### Connecting Your Wallet
 
-1. Click **"Connect Freighter"** on the landing page
-2. Freighter prompts for permission — click **Grant**
-3. Your dashboard loads with wallet address and live XLM balance
+1. Click **"Connect Wallet"** — a wallet selection modal appears
+2. Choose your wallet provider (Freighter recommended for testnet)
+3. Approve the connection in your wallet extension
+4. Dashboard loads with your wallet address and live XLM balance
 
-### Checking Your Balance
+### Creating a Work Order (Soroban Contract)
 
-- Balance appears prominently on the Dashboard card
-- Click the **↻ refresh icon** to fetch the latest balance on demand
-- Balance auto-updates every 30 seconds in the background
+1. Scroll to the **Stellar Smart Contract** section on the dashboard
+2. Fill in a **title** and **amount** (in XLM)
+3. Click **"Create Order on Testnet"**
+4. Freighter opens — review and **Confirm** the transaction
+5. Status bar shows: Signing → Submitting → Success
+6. On success: Order ID and transaction hash appear with an Explorer link
+7. The **Event Feed** updates automatically with the new `created` event
 
 ### Sending XLM
 
-1. On the Dashboard, find the **Send XLM** panel (right column)
-2. Enter the destination **Stellar public key** (starts with `G`)
-3. Enter the **amount** of XLM
-4. Click **"Send XLM →"**
-5. **Freighter opens** — review the transaction details and sign
-6. Wait ~5 seconds for Stellar Testnet to confirm
-7. On success:
-   - Green confirmation with ✓
-   - Full **transaction hash** displayed
-   - **"View on Explorer"** link to Stellar Expert
-
-### Disconnecting
-
-Click **Disconnect** in the navbar. Your session is cleared and you return to the landing page.
+1. Find the **Send XLM** panel on the dashboard
+2. Enter a destination Stellar address and amount
+3. Click **Send XLM →** and confirm in Freighter
 
 ---
 
-## Project Structure
+## Error Handling
 
+OrbitWork classifies every error into a specific type for clear, actionable messaging:
+
+```typescript
+// Error classification in contract-panel.tsx
+function classifyError(err: unknown): ErrorType {
+  const m = String(err instanceof Error ? err.message : err).toLowerCase();
+  if (m.startsWith("freighter is set to"))        return "wrong_network";
+  if (m.includes("account not found") ||
+      m.includes("fund it via"))                  return "insufficient";
+  if (m.includes("not found") ||
+      m.includes("not installed"))                return "wallet_not_found";
+  if (m.includes("rejected") ||
+      m.includes("denied") ||
+      m.includes("cancel"))                       return "rejected";
+  return "contract";
+}
 ```
-orbitwork/
-├── app/
-│   ├── globals.css             # Global CSS: dark space theme, star dot background,
-│   │                           #   keyframe animations (fade-in-up, float,
-│   │                           #   pulse-glow, shimmer)
-│   ├── layout.tsx              # Root layout with Metadata + WalletProvider
-│   └── page.tsx                # Single-page: Landing view or Dashboard view
-│
-├── components/
-│   ├── orbit-logo.tsx          # SVG orbital animation:
-│   │                           #   - Planet with radial gradient + specular highlight
-│   │                           #   - Tilted elliptical orbit ring (back half dashed,
-│   │                           #     front half solid for depth illusion)
-│   │                           #   - animateMotion cyan satellite with glow filter
-│   │                           #   - Compact OrbitLogoMark for navbar
-│   ├── navbar.tsx              # Sticky nav: logomark + "OrbitWork" wordmark +
-│   │                           #   Testnet badge + wallet button
-│   ├── wallet-button.tsx       # Freighter connect / disconnect with:
-│   │                           #   loading spinner, address pill, status dot
-│   ├── balance-card.tsx        # XLM balance with auto-refresh (30s interval),
-│   │                           #   manual refresh, faucet link, address display
-│   └── send-xlm-form.tsx       # Transaction form: destination + amount inputs,
-│                               #   signing status, submission feedback,
-│                               #   tx hash + explorer link on success
-│
-├── contexts/
-│   └── wallet-context.tsx      # React Context Provider:
-│                               #   address, network, isConnected, isConnecting,
-│                               #   error, connect(), disconnect(), clearError()
-│                               #   localStorage session persistence
-│
-├── lib/
-│   └── stellar.ts              # Stellar SDK utilities:
-│                               #   getXLMBalance(address)
-│                               #   sendXLM(source, dest, amount)
-│                               #   accountExists(address)
-│                               #   shortAddress(address)
-│                               #   explorerUrl(hash)
-│
-├── package.json
-├── tsconfig.json
-├── next.config.ts
-└── postcss.config.mjs
-```
+
+| Type | Icon | Message shown |
+|---|---|---|
+| `wallet_not_found` | 🔌 | Wallet extension not installed |
+| `wrong_network` | 🌐 | Freighter set to wrong network |
+| `rejected` | ✋ | User cancelled the signing popup |
+| `insufficient` | 💸 | Account not funded — faucet link shown |
+| `contract` | ⚠️ | On-chain or simulation error with details |
 
 ---
 
 ## Stellar Integration Details
 
-### Wallet Integration (Freighter API v6)
+### Soroban RPC (SDK v15 — critical namespace change)
 
 ```typescript
-import {
-  isConnected,
-  requestAccess,
-  getNetwork,
-  signTransaction,
-} from "@stellar/freighter-api";
+// SDK v15 breaking change: StellarSdk.SorobanRpc does NOT exist
+// Correct import:
+import { rpc as SorobanRpc } from "@stellar/stellar-sdk";
 
-// 1. Check if extension is installed
-const { isConnected: installed } = await isConnected();
+const server = new SorobanRpc.Server("https://soroban-testnet.stellar.org");
 
-// 2. Request wallet access (triggers popup)
-const { address } = await requestAccess();
+// Simulate → Assemble → Sign → Submit → Poll
+const sim = await server.simulateTransaction(tx);
+const assembled = SorobanRpc.assembleTransaction(tx, sim).build();
+const sendResp = await server.sendTransaction(signedTx);
 
-// 3. Sign a transaction XDR (triggers popup)
-const { signedTxXdr } = await signTransaction(txXdr, {
-  networkPassphrase: Networks.TESTNET,
+// Poll until confirmed
+const status = await server.getTransaction(hash);
+// status.status === SorobanRpc.Api.GetTransactionStatus.SUCCESS
+```
+
+### Contract Call with Auth
+
+```typescript
+contract.call(
+  "create_order",
+  StellarSdk.Address.fromString(clientAddress).toScVal(), // Address type
+  StellarSdk.nativeToScVal(title, { type: "string" }),    // String type
+  StellarSdk.nativeToScVal(stroops, { type: "i128" })     // i128 type
+)
+```
+
+The contract uses `client.require_auth()` — Soroban automatically adds the authorization to the assembled transaction.
+
+### Real-Time Events
+
+```typescript
+const ledger = await rpc.getLatestLedger();
+const resp = await rpc.getEvents({
+  startLedger: ledger.sequence - 2000,
+  filters: [{ type: "contract", contractIds: [CONTRACT_ID] }],
+  limit: 10,
 });
 ```
 
-### Balance Fetching (Stellar SDK v15 Horizon)
+### Wallet Connection (StellarWalletsKit)
 
 ```typescript
-import { Horizon } from "@stellar/stellar-sdk";
+import { StellarWalletsKit, WalletNetwork, FREIGHTER_ID } from "@creit.tech/stellar-wallets-kit";
 
-const server = new Horizon.Server("https://horizon-testnet.stellar.org");
-const account = await server.loadAccount(publicKey);
-
-// XLM is the "native" asset type
-const native = account.balances.find(b => b.asset_type === "native");
-console.log(native?.balance); // "100.0000000"
-```
-
-### Sending XLM
-
-```typescript
-import {
-  TransactionBuilder,
-  Operation,
-  Asset,
-  Networks,
-  BASE_FEE,
-} from "@stellar/stellar-sdk";
-
-const account = await server.loadAccount(sourceAddress);
-
-const tx = new TransactionBuilder(account, {
-  fee: BASE_FEE,
-  networkPassphrase: Networks.TESTNET,
-})
-  .addOperation(
-    Operation.payment({
-      destination: destinationAddress,
-      asset: Asset.native(), // XLM
-      amount: "10.0000000",
-    })
-  )
-  .setTimeout(30) // expires in 30 seconds
-  .build();
-
-// Sign with Freighter — private key never leaves the extension
-const { signedTxXdr } = await signTransaction(tx.toXDR(), {
-  networkPassphrase: Networks.TESTNET,
+const kit = new StellarWalletsKit({
+  network: WalletNetwork.TESTNET,
+  selectedWalletId: FREIGHTER_ID,
 });
 
-// Reconstruct and submit
-const signedTx = TransactionBuilder.fromXDR(signedTxXdr, Networks.TESTNET);
-const result = await server.submitTransaction(signedTx);
-console.log(result.hash); // "a3f2b9c..."
+await kit.openModal({ onWalletSelected: async (option) => {
+  kit.setWallet(option.id);
+  const { address } = await kit.getAddress();
+}});
+
+// Sign a Soroban transaction
+const { signedTxXdr } = await kit.signTransaction(txXdr, {
+  networkPassphrase: Networks.TESTNET,
+});
 ```
-
-### New Account Detection
-
-OrbitWork automatically detects if a destination address is a new (unfunded) Stellar account. If the account doesn't exist on-chain yet, it uses `Operation.createAccount` with a minimum 1 XLM starting balance — this is required by Stellar's base reserve rule. If the account already exists, it uses `Operation.payment` as normal.
-
----
-
-## Screenshots
-
-> Screenshots to be added after deployment. The submission includes:
-
-| # | Screen | What it shows |
-|---|---|---|
-| 1 | Landing page | Animated orbital logo, "Connect Freighter" CTA |
-| 2 | Wallet connected | Dashboard with address pill + green status dot |
-| 3 | Balance displayed | XLM balance card with 7-decimal precision |
-| 4 | Transaction success | Green confirmation, tx hash, Explorer link |
-
-*(Add screenshot images to `./screenshots/` and reference them here)*
 
 ---
 
 ## What I Learned
 
-Building this Level 1 submission taught me:
+### Level 1 (White Belt)
+1. **Stellar's account model** — base reserve, `createAccount` vs `payment` op
+2. **Freighter's permission architecture** — private keys never leave the extension
+3. **Horizon API** — balances as `BalanceLine[]`, native XLM vs custom tokens
+4. **Transaction lifecycle** — Build → Sign → Submit; `setTimeout()` is mandatory
+5. **Next.js + Web3** — blockchain libraries must live in `"use client"` components
 
-1. **Stellar's account model** — Every account must maintain a minimum XLM balance (base reserve = 1 XLM + 0.5 per entry). New accounts must be funded with `createAccount`, not `payment`.
-
-2. **Freighter's permission architecture** — The wallet never exposes private keys to dApps. `requestAccess()` grants read-only access to the public key. `signTransaction()` signs XDR inside the extension sandbox.
-
-3. **Horizon API structure** — Balances are returned as an array of `BalanceLine` objects. XLM has `asset_type: "native"`, while custom tokens have `credit_alphanum4` or `credit_alphanum12`.
-
-4. **Transaction lifecycle** — Build (TransactionBuilder) → Sign (Freighter) → Submit (Horizon). Transactions expire after the `setTimeout()` window — 30 seconds is the recommended default.
-
-5. **Next.js + Web3** — Blockchain libraries that reference `window` or browser extensions must be used inside `"use client"` components. Dynamic imports (`await import(...)`) are useful for lazy-loading wallet libraries only when needed.
-
-6. **Error handling in blockchain** — Every step can fail independently: extension not installed, user rejects signature, network timeout, insufficient funds. Each must show a specific, actionable error message.
+### Level 2 (Yellow Belt)
+6. **Soroban SDK v22** — `#[contract]`, `#[contractimpl]`, `#[contracttype]`, `require_auth()`, persistent storage, TTL extension, `env.events().publish()`
+7. **Stellar SDK v15 breaking change** — `StellarSdk.SorobanRpc` does not exist; must use `import { rpc as SorobanRpc } from "@stellar/stellar-sdk"`
+8. **Soroban RPC flow** — simulate (get footprint) → `assembleTransaction` (adds resource fee) → sign → submit → poll `getTransaction()`
+9. **ScVal encoding** — `Address.fromString(addr).toScVal()` for Address, `nativeToScVal(v, { type })` for primitives, `scValToNative()` to decode results
+10. **Horizon 404 for unfunded accounts** — must catch and classify distinctly from "wallet not found" errors
+11. **Error classification order matters** — check `wrong_network` before `wallet_not_found` or substring matches collide
 
 ---
 
 ## Roadmap
 
-This is Level 1 (White Belt) of a progressive build series:
+| Level | Belt | Status | Focus |
+|---|---|---|---|
+| 1 | ⚪ White Belt | ✅ Accepted | Wallet connect, XLM balance, send transaction |
+| 2 | 🟡 Yellow Belt | 🔄 Submitted | Multi-wallet, Soroban contract, real-time events |
+| 3 | 🟠 Orange Belt | ⏳ Next | Escrow contract, milestone payments, testing |
+| 4 | 🟢 Green Belt | ⏳ | Production MVP, advanced contract features |
+| 5 | 🔵 Blue Belt | ⏳ | 50 users, feedback loop, pitch deck |
+| 6 | ⚫ Black Belt | ⏳ | Mainnet launch, 30+ real users, security audit |
+| 7 | 🏆 Master Belt | ⏳ | Ecosystem acceleration, investor visibility |
 
-| Level | Belt | Focus |
-|---|---|---|
-| ✅ 1 | ⚪ White Belt | Wallet connect, XLM balance, send transaction |
-| ⏳ 2 | 🟡 Yellow Belt | Multi-wallet, Soroban smart contracts, real-time events |
-| ⏳ 3 | 🟠 Orange Belt | Mini dApp with escrow contract, testing, deployment |
-| ⏳ 4 | 🟢 Green Belt | Production-ready MVP, advanced contract features |
-| ⏳ 5 | 🔵 Blue Belt | 50 users, feedback loop, pitch deck |
-| ⏳ 6 | ⚫ Black Belt | Mainnet launch, 30+ real users, security audit |
-| ⏳ 7 | 🏆 Master Belt | Ecosystem acceleration, investor visibility |
-
-The end goal is a fully decentralized freelance marketplace on Stellar with Soroban smart contract escrow, milestone payments, and on-chain reputation — powered by everything learned across these levels.
+The end goal is a fully decentralized freelance marketplace on Stellar with Soroban smart contract escrow, milestone payments, and on-chain reputation.
 
 ---
 
 ## License
 
-MIT © [Oluwagbemiga Gbangbola](https://github.com/gbangbolaphilip)
+MIT © [Oluwagbemiga Gbangbola](https://github.com/Gbangbolaoluwagbemiga)
 
 ---
 
@@ -423,6 +478,6 @@ MIT © [Oluwagbemiga Gbangbola](https://github.com/gbangbolaphilip)
 
 Built with ❤️ on [Stellar](https://stellar.org) · Submitted to [Rise In](https://risein.com)
 
-**White Belt — Level 1 · Stellar Journey to Mastery**
+**Yellow Belt — Level 2 · Stellar Journey to Mastery**
 
 </div>
