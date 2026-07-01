@@ -88,6 +88,8 @@ Level 3 goes beyond beginner demos into production architecture:
 
 🚀 **Deployed:** [orbitwork-stellar.vercel.app](https://orbitwork-stellar.vercel.app)
 
+🎥 **Demo Video:** [Watch on Loom](https://www.loom.com/share/21e4c56110b249159396bc63c5d154c7)
+
 ---
 
 ## Orange Belt Level 3 Features
