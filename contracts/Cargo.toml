@@ -1,0 +1,3 @@
+[workspace]
+members = ["orbit-registry", "orbit-escrow"]
+resolver = "2"
