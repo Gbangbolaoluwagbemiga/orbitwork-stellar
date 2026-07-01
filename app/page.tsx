@@ -146,7 +146,7 @@ function DashboardView() {
       </div>
 
       {/* Main grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div id="dashboard" className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left: Wallet balance */}
         <div className="space-y-6">
           <BalanceCard />
@@ -184,13 +184,13 @@ function DashboardView() {
         </div>
 
         {/* Right: Send XLM */}
-        <div>
+        <div id="send">
           <SendXLMForm />
         </div>
       </div>
 
       {/* Contract section */}
-      <div className="space-y-4 animate-fade-in-up delay-300">
+      <div id="contract" className="space-y-4 animate-fade-in-up delay-300">
         <div className="flex items-center gap-3">
           <div
             className="h-px flex-1"
