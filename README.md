@@ -142,11 +142,15 @@ StellarWalletsKit supports Freighter, Albedo, xBull, LOBSTR, Rabet and more.
 
 ### ✅ Mobile Responsive Frontend
 
-Full Tailwind CSS responsive design — works on mobile, tablet, and desktop.
+Full Tailwind CSS responsive design — works on mobile, tablet, and desktop. Hamburger menu on mobile with slide-down drawer.
+
+![Mobile View](screenshots/mobile-view.png)
 
 ### ✅ CI/CD Pipeline
 
 GitHub Actions runs contract tests + frontend tests + build on every push to `main`. See [CI/CD Pipeline](#cicd-pipeline) section.
+
+![CI Pipeline](screenshots/ci-pipeline.png)
 
 ---
 
