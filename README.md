@@ -192,6 +192,8 @@ orbit-escrow: 3 tests
   test_refund_marks_refunded_and_cancels_order           ... ok  ← inter-contract
 ```
 
+![Contract Tests Output](screenshots/contracts-test.png)
+
 Run locally:
 ```bash
 cd contracts
@@ -214,6 +216,8 @@ lib/__tests__/stellar.test.ts
   STATUS_LABEL            ✓ maps 2 to Cancelled
   Horizon config          ✓ HORIZON_URL targets the testnet
 ```
+
+![Frontend Tests Output](screenshots/tests.png)
 
 Run locally:
 ```bash
