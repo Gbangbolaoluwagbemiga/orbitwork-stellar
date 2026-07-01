@@ -135,6 +135,8 @@ The name **OrbitWork** reflects the mission: work that revolves around a trustle
 - Freighter, xBull, LOBSTR wallets detected and listed
 - Graceful fallback messaging when no wallet is installed
 
+![Wallet Options Modal](screenshots/wallet-options.png)
+
 ### ✅ Soroban Smart Contract Deployed on Testnet
 - `OrbitRegistry` contract deployed at `CBWAGSMUHYU2LNFGQ6CJ4B6DCUJILOZZU4GNIGCYYWWQQBGCUOL3Q43H`
 - Built with **Soroban SDK v22.0.0** in Rust
