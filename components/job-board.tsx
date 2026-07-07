@@ -177,19 +177,6 @@ export function JobBoard() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-accent/15">
-          <Briefcase className="size-4 text-accent" />
-        </div>
-        <div>
-          <h3 className="font-bold text-lg text-foreground">Job Board</h3>
-          <p className="text-xs text-muted-foreground">
-            {allOrders.length} work order{allOrders.length !== 1 ? "s" : ""} on-chain · OrbitRegistry
-          </p>
-        </div>
-      </div>
-
       {/* Tabs */}
       <div className="flex gap-1 p-1 rounded-xl bg-secondary/60">
         {(["browse", "post", "mine"] as Tab[]).map((t) => (

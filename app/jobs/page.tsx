@@ -7,9 +7,8 @@ import { JobBoard } from "@/components/job-board";
 export default function JobsPage() {
   return (
     <div className="max-w-5xl mx-auto w-full px-4 py-10">
-      {/* Page header */}
       <motion.div
-        className="mb-8 space-y-2"
+        className="mb-8"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
@@ -27,7 +26,6 @@ export default function JobsPage() {
         </div>
       </motion.div>
 
-      {/* Job board component */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
