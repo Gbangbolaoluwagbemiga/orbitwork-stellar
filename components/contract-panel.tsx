@@ -126,7 +126,9 @@ export function ContractPanel() {
       const result = await createOrder({
         clientAddress: address,
         title,
+        description: "",
         amountXlm: amount,
+        duration: 7,
         signFn: signAndTrack,
       });
 
