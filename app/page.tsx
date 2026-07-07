@@ -7,6 +7,8 @@ import { BalanceCard } from "@/components/balance-card";
 import { SendXLMForm } from "@/components/send-xlm-form";
 import { WalletButton } from "@/components/wallet-button";
 import { ContractPanel } from "@/components/contract-panel";
+import { JobBoard } from "@/components/job-board";
+import { FeedbackForm } from "@/components/feedback-form";
 
 export default function Home() {
   const { isConnected, error, clearError } = useWallet();
@@ -128,6 +130,21 @@ function FeatureCard({
   );
 }
 
+function SectionDivider({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="h-px flex-1" style={{ background: "var(--border-card)" }} />
+      <span
+        className="text-xs font-semibold uppercase tracking-widest px-3"
+        style={{ color: "var(--text-4)" }}
+      >
+        {label}
+      </span>
+      <div className="h-px flex-1" style={{ background: "var(--border-card)" }} />
+    </div>
+  );
+}
+
 /* ────────────────────────────────────────────
    Dashboard — shown after wallet connects
 ──────────────────────────────────────────── */
@@ -189,25 +206,48 @@ function DashboardView() {
         </div>
       </div>
 
+      {/* Job Board section */}
+      <div id="jobs" className="space-y-4 animate-fade-in-up delay-200">
+        <SectionDivider label="Job Board" />
+        <JobBoard />
+      </div>
+
       {/* Contract section */}
       <div id="contract" className="space-y-4 animate-fade-in-up delay-300">
-        <div className="flex items-center gap-3">
-          <div
-            className="h-px flex-1"
-            style={{ background: "var(--border-card)" }}
-          />
-          <span
-            className="text-xs font-semibold uppercase tracking-widest px-3"
-            style={{ color: "var(--text-4)" }}
-          >
-            Stellar Smart Contract
-          </span>
-          <div
-            className="h-px flex-1"
-            style={{ background: "var(--border-card)" }}
-          />
-        </div>
+        <SectionDivider label="Stellar Smart Contract" />
         <ContractPanel />
+      </div>
+
+      {/* Feedback section */}
+      <div id="feedback" className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in-up delay-400">
+        <FeedbackForm />
+        <div
+          className="rounded-2xl p-6 space-y-4"
+          style={{
+            background: "linear-gradient(135deg, rgba(99,102,241,0.07) 0%, rgba(6,182,212,0.05) 100%)",
+            border: "1px solid rgba(99,102,241,0.12)",
+          }}
+        >
+          <p className="font-semibold" style={{ color: "var(--text-1)" }}>
+            About OrbitWork
+          </p>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--text-3)" }}>
+            OrbitWork is a cross-border freelance marketplace built on Stellar. Smart contracts handle work orders, escrow, and reputation — eliminating intermediaries for global freelancers.
+          </p>
+          <div className="space-y-2">
+            {[
+              { icon: "🌍", text: "Instant cross-border payments in XLM" },
+              { icon: "🔒", text: "On-chain escrow via OrbitEscrow contract" },
+              { icon: "⭐", text: "Reputation tracking via OrbitReputation" },
+              { icon: "📋", text: "Immutable work orders on Stellar Testnet" },
+            ].map(({ icon, text }) => (
+              <div key={text} className="flex items-center gap-3 text-sm" style={{ color: "var(--text-3)" }}>
+                <span>{icon}</span>
+                <span>{text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Stellar info banner */}
@@ -254,7 +294,7 @@ function Footer() {
           >
             Stellar
           </a>{" "}
-          · Yellow Belt – Level 2
+          · Green Belt – Level 4
         </p>
         <div className="flex items-center gap-4">
           <a

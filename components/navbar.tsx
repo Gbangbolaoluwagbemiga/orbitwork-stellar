@@ -7,6 +7,7 @@ import { useTheme } from "@/contexts/theme-context";
 
 const NAV_LINKS = [
   { label: "Dashboard", href: "#dashboard" },
+  { label: "Job Board", href: "#jobs" },
   { label: "Smart Contract", href: "#contract" },
   { label: "Send XLM", href: "#send" },
   {

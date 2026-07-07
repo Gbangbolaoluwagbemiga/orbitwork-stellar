@@ -27,6 +27,7 @@ jobs:
             ~/.cargo/git
             contracts/orbit-registry/target
             contracts/orbit-escrow/target
+            contracts/orbit-reputation/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('contracts/**/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
 
