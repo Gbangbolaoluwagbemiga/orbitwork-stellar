@@ -10,8 +10,6 @@ import {
   Briefcase,
   Send,
   FileCode2,
-  ExternalLink,
-  GitBranch,
   Sun,
   Moon,
   Menu,
@@ -31,16 +29,6 @@ const NAV_LINKS = [
   { label: "Contract", href: "/contract", icon: FileCode2 },
 ];
 
-const EXTERNAL_LINKS = [
-  {
-    label: "Explorer",
-    href: "https://stellar.expert/explorer/testnet/contract/CBWAGSMUHYU2LNFGQ6CJ4B6DCUJILOZZU4GNIGCYYWWQQBGCUOL3Q43H",
-  },
-  {
-    label: "GitHub",
-    href: "https://github.com/Gbangbolaoluwagbemiga/orbitwork-stellar",
-  },
-];
 
 function isActive(href: string, pathname: string): boolean {
   if (href === "/") return pathname === "/";
@@ -106,21 +94,6 @@ export function Navbar() {
             );
           })}
 
-          {/* External links */}
-          <div className="flex items-center gap-1 ml-2 pl-2 border-l border-border">
-            {EXTERNAL_LINKS.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all duration-200"
-              >
-                {link.label}
-                <ExternalLink className="size-3 opacity-50" />
-              </a>
-            ))}
-          </div>
         </div>
 
         {/* Right controls */}
@@ -182,25 +155,6 @@ export function Navbar() {
                   </Link>
                 );
               })}
-
-              {/* External links */}
-              {EXTERNAL_LINKS.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-                >
-                  {link.label === "GitHub" ? (
-                    <GitBranch className="size-4" />
-                  ) : (
-                    <ExternalLink className="size-4" />
-                  )}
-                  <span className="flex-1">{link.label}</span>
-                  <ExternalLink className="size-3 opacity-40" />
-                </a>
-              ))}
 
               <div className="h-px bg-border my-2" />
 

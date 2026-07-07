@@ -32,7 +32,7 @@ export function FeedbackForm() {
 
   const canSubmit = rating !== null && category !== null && message.trim().length >= 5;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
 
@@ -45,11 +45,20 @@ export function FeedbackForm() {
     };
 
     try {
-      const existing = JSON.parse(localStorage.getItem("orbitwork_feedback") ?? "[]");
-      existing.push(entry);
-      localStorage.setItem("orbitwork_feedback", JSON.stringify(existing));
+      await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(entry),
+      });
     } catch {
-      // ignore storage errors
+      // fallback: save locally so nothing is lost
+      try {
+        const existing = JSON.parse(localStorage.getItem("orbitwork_feedback") ?? "[]");
+        existing.push(entry);
+        localStorage.setItem("orbitwork_feedback", JSON.stringify(existing));
+      } catch {
+        /* ignore */
+      }
     }
 
     setSubmitted(true);

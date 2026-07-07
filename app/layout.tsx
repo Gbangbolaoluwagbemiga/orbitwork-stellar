@@ -5,7 +5,6 @@ import { WalletProvider } from "@/contexts/wallet-context";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { Analytics } from "@vercel/analytics/next";
 import { Navbar } from "@/components/navbar";
-import { ExternalLink } from "lucide-react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -72,32 +71,14 @@ function SiteFooter() {
           </a>{" "}
           · Green Belt – Level 4
         </p>
-        <div className="flex items-center gap-4">
-          <a
-            href="https://github.com/Gbangbolaoluwagbemiga/orbitwork-stellar"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:text-foreground transition-colors"
-          >
-            GitHub <ExternalLink className="size-3" />
-          </a>
-          <a
-            href="https://laboratory.stellar.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:text-foreground transition-colors"
-          >
-            Stellar Lab <ExternalLink className="size-3" />
-          </a>
-          <a
-            href="https://stellar.expert/explorer/testnet"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:text-foreground transition-colors"
-          >
-            Explorer <ExternalLink className="size-3" />
-          </a>
-        </div>
+        <a
+          href="https://laboratory.stellar.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-foreground transition-colors"
+        >
+          Stellar Lab ↗
+        </a>
       </div>
     </footer>
   );
