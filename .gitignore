@@ -50,3 +50,7 @@ hooks/
 
 # Rust contract build artifacts
 contracts/*/target/
+contracts/target/
+
+# Editor workspace files
+*.code-workspace
