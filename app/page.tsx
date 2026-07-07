@@ -1,106 +1,140 @@
 "use client";
 
-import { useWallet } from "@/contexts/wallet-context";
+import Link from "next/link";
 import { OrbitLogo } from "@/components/orbit-logo";
-import { Navbar } from "@/components/navbar";
-import { BalanceCard } from "@/components/balance-card";
-import { SendXLMForm } from "@/components/send-xlm-form";
 import { WalletButton } from "@/components/wallet-button";
-import { ContractPanel } from "@/components/contract-panel";
-import { JobBoard } from "@/components/job-board";
-import { FeedbackForm } from "@/components/feedback-form";
 
-export default function Home() {
-  const { isConnected, error, clearError } = useWallet();
-
+export default function LandingPage() {
   return (
-    <div className="relative flex flex-col min-h-screen">
-      <Navbar />
+    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-130px)] px-4 py-16 text-center overflow-hidden">
+      {/* Orbital ring decoration */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          width: "560px",
+          height: "560px",
+          borderRadius: "50%",
+          border: "1px solid rgba(99,102,241,0.08)",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      />
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          width: "380px",
+          height: "380px",
+          borderRadius: "50%",
+          border: "1px solid rgba(6,182,212,0.06)",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      />
 
-      {/* Global error toast */}
-      {error && (
-        <div
-          className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-xl text-sm max-w-sm w-full mx-4 animate-fade-in"
-          style={{
-            background: "rgba(239,68,68,0.15)",
-            border: "1px solid rgba(239,68,68,0.3)",
-            backdropFilter: "blur(12px)",
-          }}
-        >
-          <span className="text-red-400">⚠</span>
-          <p className="text-red-300 flex-1">{error}</p>
-          <button
-            onClick={clearError}
-            className="text-red-400/60 hover:text-red-300 transition-colors"
-          >
-            ✕
-          </button>
-        </div>
-      )}
+      {/* Gradient blobs */}
+      <div
+        className="absolute pointer-events-none opacity-20"
+        style={{
+          width: "600px",
+          height: "600px",
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%)",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          filter: "blur(60px)",
+        }}
+      />
 
-      <main className="relative z-10 flex-1">
-        {!isConnected ? <LandingView /> : <DashboardView />}
-      </main>
-
-      <Footer />
-    </div>
-  );
-}
-
-/* ────────────────────────────────────────────
-   Landing — shown before wallet is connected
-──────────────────────────────────────────── */
-function LandingView() {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] px-4 py-16 text-center">
       {/* Animated orbital logo */}
-      <div className="animate-float animate-fade-in-up">
-        <OrbitLogo size={200} />
+      <div className="animate-float animate-fade-in-up relative z-10">
+        <OrbitLogo size={180} />
       </div>
 
       {/* Title */}
-      <div className="mt-8 space-y-3 animate-fade-in-up delay-100">
-        <h1 className="text-5xl sm:text-6xl font-bold tracking-tight">
+      <div className="mt-8 space-y-3 animate-fade-in-up delay-100 relative z-10">
+        <h1 className="text-5xl sm:text-7xl font-bold tracking-tight">
           <span className="shimmer-text">OrbitWork</span>
         </h1>
-        <p className="text-xl text-white/50 font-light max-w-md">
-          Seamless XLM payments on the{" "}
-          <span className="text-indigo-400 font-medium">Stellar Network</span>
+        <p className="text-xl sm:text-2xl font-light max-w-lg mx-auto" style={{ color: "var(--text-3)" }}>
+          The Stellar freelance marketplace —{" "}
+          <span className="text-indigo-400 font-medium">jobs, payments, and reputation on-chain</span>
         </p>
       </div>
 
       {/* Description */}
-      <p className="mt-6 max-w-lg text-white/40 leading-relaxed animate-fade-in-up delay-200">
-        Connect any Stellar wallet to check your balance, send XLM
-        transactions on Stellar Testnet, and track your payment history — all
-        in one orbit.
+      <p className="mt-6 max-w-xl leading-relaxed animate-fade-in-up delay-200 relative z-10" style={{ color: "var(--text-4)" }}>
+        Connect any Stellar wallet to browse open jobs, send XLM payments, register
+        work orders on-chain, and build your on-chain freelance reputation — all in one orbit.
       </p>
 
-      {/* CTA */}
-      <div className="mt-10 animate-fade-in-up delay-300">
+      {/* CTAs */}
+      <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 animate-fade-in-up delay-300 relative z-10">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-semibold text-base text-white transition-all duration-200 hover:scale-105 hover:shadow-2xl"
+          style={{
+            background: "linear-gradient(135deg, #6366f1, #7c3aed)",
+            boxShadow: "0 0 30px rgba(99,102,241,0.35)",
+          }}
+        >
+          Launch App
+          <span className="text-lg">→</span>
+        </Link>
         <WalletButton />
-        <p className="mt-3 text-xs text-white/30">
-          Supports Freighter · Albedo · xBull · Rabet · Hana · LOBSTR
-        </p>
       </div>
 
-      {/* Feature cards */}
-      <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl w-full animate-fade-in-up delay-400">
+      <p className="mt-4 text-xs animate-fade-in-up delay-400 relative z-10" style={{ color: "var(--text-5)" }}>
+        Supports Freighter · Albedo · xBull · Rabet · Hana · LOBSTR
+      </p>
+
+      {/* Feature cards 2×2 grid */}
+      <div className="mt-20 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl w-full animate-fade-in-up delay-400 relative z-10">
         <FeatureCard
-          icon="🔗"
-          title="Multi-Wallet"
-          desc="Freighter, Albedo, xBull, Rabet, Hana, LOBSTR — your choice"
+          icon="📋"
+          title="Job Board"
+          desc="Browse open work orders or post your own. All jobs are stored immutably on the Stellar blockchain via the OrbitRegistry contract."
+          color="#06b6d4"
+          href="/jobs"
         />
         <FeatureCard
           icon="💠"
-          title="Live Balance"
-          desc="Real-time XLM balance fetched directly from Stellar Horizon"
+          title="XLM Payments"
+          desc="Send XLM cross-border in seconds. Real-time balance, full transaction history, and Stellar Testnet faucet integration."
+          color="#6366f1"
+          href="/send"
         />
         <FeatureCard
-          icon="⚡"
-          title="Fast Payments"
-          desc="Send XLM in seconds with full transaction hash confirmation"
+          icon="🔗"
+          title="Smart Contracts"
+          desc="Work orders are registered on the OrbitRegistry Soroban contract — transparent, immutable, and verifiable on-chain."
+          color="#a78bfa"
+          href="/contract"
         />
+        <FeatureCard
+          icon="⭐"
+          title="On-Chain Reputation"
+          desc="Your completed orders build your on-chain track record on Stellar Testnet — visible to any client worldwide."
+          color="#10b981"
+          href="/dashboard"
+        />
+      </div>
+
+      {/* Stats strip */}
+      <div className="mt-16 flex items-center gap-8 sm:gap-16 animate-fade-in-up delay-500 relative z-10">
+        {[
+          { value: "Testnet", label: "Network" },
+          { value: "6+", label: "Wallets Supported" },
+          { value: "0-fee", label: "Testnet Transactions" },
+          { value: "Soroban", label: "Smart Contract" },
+        ].map(({ value, label }) => (
+          <div key={label} className="text-center">
+            <p className="text-lg font-bold gradient-text">{value}</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-5)" }}>{label}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -110,219 +144,42 @@ function FeatureCard({
   icon,
   title,
   desc,
+  color,
+  href,
 }: {
   icon: string;
   title: string;
   desc: string;
+  color: string;
+  href: string;
 }) {
   return (
-    <div
-      className="p-5 rounded-2xl text-left space-y-2 hover:scale-105 transition-transform duration-200 cursor-default"
+    <Link
+      href={href}
+      className="group p-6 rounded-2xl text-left space-y-3 transition-all duration-200 hover:scale-[1.02] cursor-pointer"
       style={{
         background: "var(--surface-card)",
         border: "1px solid var(--border-card)",
       }}
     >
-      <span className="text-2xl">{icon}</span>
-      <h3 className="text-sm font-semibold text-white/80">{title}</h3>
-      <p className="text-xs text-white/40 leading-relaxed">{desc}</p>
-    </div>
-  );
-}
-
-function SectionDivider({ label }: { label: string }) {
-  return (
-    <div className="flex items-center gap-3">
-      <div className="h-px flex-1" style={{ background: "var(--border-card)" }} />
-      <span
-        className="text-xs font-semibold uppercase tracking-widest px-3"
-        style={{ color: "var(--text-4)" }}
-      >
-        {label}
-      </span>
-      <div className="h-px flex-1" style={{ background: "var(--border-card)" }} />
-    </div>
-  );
-}
-
-/* ────────────────────────────────────────────
-   Dashboard — shown after wallet connects
-──────────────────────────────────────────── */
-function DashboardView() {
-  return (
-    <div className="max-w-4xl mx-auto w-full px-4 py-10 space-y-8">
-      {/* Page header */}
-      <div className="flex items-center gap-4 animate-fade-in-up">
-        <OrbitLogo size={52} />
-        <div>
-          <h2 className="text-2xl font-bold text-white">Dashboard</h2>
-          <p className="text-sm text-white/40">
-            Stellar Testnet · Freighter Connected
-          </p>
-        </div>
-      </div>
-
-      {/* Main grid */}
-      <div id="dashboard" className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Left: Wallet balance */}
-        <div className="space-y-6">
-          <BalanceCard />
-
-          {/* How-to steps */}
-          <div
-            className="rounded-2xl p-5 space-y-3 animate-fade-in-up delay-200"
-            style={{
-              background: "var(--surface-card-alt)",
-              border: "1px solid var(--border-card)",
-            }}
-          >
-            <h4 className="text-sm font-semibold text-white/60 uppercase tracking-wider">
-              Quick Guide
-            </h4>
-            <ol className="space-y-2 text-sm text-white/50">
-              <li className="flex gap-2.5">
-                <span className="text-indigo-400 font-mono">01</span>
-                Fund your testnet account via the Faucet link above
-              </li>
-              <li className="flex gap-2.5">
-                <span className="text-indigo-400 font-mono">02</span>
-                Enter a valid Stellar testnet address as the destination
-              </li>
-              <li className="flex gap-2.5">
-                <span className="text-indigo-400 font-mono">03</span>
-                Specify an amount and confirm in Freighter
-              </li>
-              <li className="flex gap-2.5">
-                <span className="text-indigo-400 font-mono">04</span>
-                View your confirmed transaction on Stellar Explorer
-              </li>
-            </ol>
-          </div>
-        </div>
-
-        {/* Right: Send XLM */}
-        <div id="send">
-          <SendXLMForm />
-        </div>
-      </div>
-
-      {/* Job Board section */}
-      <div id="jobs" className="space-y-4 animate-fade-in-up delay-200">
-        <SectionDivider label="Job Board" />
-        <JobBoard />
-      </div>
-
-      {/* Contract section */}
-      <div id="contract" className="space-y-4 animate-fade-in-up delay-300">
-        <SectionDivider label="Stellar Smart Contract" />
-        <ContractPanel />
-      </div>
-
-      {/* Feedback section */}
-      <div id="feedback" className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in-up delay-400">
-        <FeedbackForm />
-        <div
-          className="rounded-2xl p-6 space-y-4"
-          style={{
-            background: "linear-gradient(135deg, rgba(99,102,241,0.07) 0%, rgba(6,182,212,0.05) 100%)",
-            border: "1px solid rgba(99,102,241,0.12)",
-          }}
+      <div className="flex items-center gap-3">
+        <span
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+          style={{ background: `${color}18` }}
         >
-          <p className="font-semibold" style={{ color: "var(--text-1)" }}>
-            About OrbitWork
-          </p>
-          <p className="text-sm leading-relaxed" style={{ color: "var(--text-3)" }}>
-            OrbitWork is a cross-border freelance marketplace built on Stellar. Smart contracts handle work orders, escrow, and reputation — eliminating intermediaries for global freelancers.
-          </p>
-          <div className="space-y-2">
-            {[
-              { icon: "🌍", text: "Instant cross-border payments in XLM" },
-              { icon: "🔒", text: "On-chain escrow via OrbitEscrow contract" },
-              { icon: "⭐", text: "Reputation tracking via OrbitReputation" },
-              { icon: "📋", text: "Immutable work orders on Stellar Testnet" },
-            ].map(({ icon, text }) => (
-              <div key={text} className="flex items-center gap-3 text-sm" style={{ color: "var(--text-3)" }}>
-                <span>{icon}</span>
-                <span>{text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+          {icon}
+        </span>
+        <h3 className="font-semibold text-sm" style={{ color: "var(--text-1)" }}>
+          {title}
+        </h3>
       </div>
-
-      {/* Stellar info banner */}
-      <div
-        className="rounded-2xl p-5 flex items-center gap-4 animate-fade-in-up delay-400"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(99,102,241,0.07) 0%, rgba(6,182,212,0.05) 100%)",
-          border: "1px solid rgba(99,102,241,0.12)",
-        }}
+      <p className="text-xs leading-relaxed" style={{ color: "var(--text-4)" }}>{desc}</p>
+      <p
+        className="text-xs font-medium flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+        style={{ color }}
       >
-        <div className="text-3xl">🌌</div>
-        <div>
-          <p className="text-sm font-medium text-white/70">
-            Running on Stellar Testnet
-          </p>
-          <p className="text-xs text-white/35 mt-0.5">
-            All transactions are on the test network. No real XLM is used.
-            Switch Freighter to Testnet to interact with this dApp.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ────────────────────────────────────────────
-   Footer
-──────────────────────────────────────────── */
-function Footer() {
-  return (
-    <footer
-      className="relative z-10 border-t py-6 px-4"
-      style={{ borderColor: "var(--border-subtle)" }}
-    >
-      <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/30">
-        <p>
-          OrbitWork · Built on{" "}
-          <a
-            href="https://stellar.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-indigo-400/70 hover:text-indigo-400 transition-colors"
-          >
-            Stellar
-          </a>{" "}
-          · Green Belt – Level 4
-        </p>
-        <div className="flex items-center gap-4">
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-white/60 transition-colors"
-          >
-            GitHub
-          </a>
-          <a
-            href="https://laboratory.stellar.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-white/60 transition-colors"
-          >
-            Stellar Lab
-          </a>
-          <a
-            href="https://stellar.expert/explorer/testnet"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-white/60 transition-colors"
-          >
-            Explorer
-          </a>
-        </div>
-      </div>
-    </footer>
+        Explore {title} →
+      </p>
+    </Link>
   );
 }

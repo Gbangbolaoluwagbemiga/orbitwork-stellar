@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { OrbitLogoMark } from "@/components/orbit-logo";
 import { WalletButton } from "@/components/wallet-button";
 import { useTheme } from "@/contexts/theme-context";
 
 const NAV_LINKS = [
-  { label: "Dashboard", href: "#dashboard" },
-  { label: "Job Board", href: "#jobs" },
-  { label: "Smart Contract", href: "#contract" },
-  { label: "Send XLM", href: "#send" },
+  { label: "Home", href: "/" },
+  { label: "Dashboard", href: "/dashboard" },
+  { label: "Job Board", href: "/jobs" },
+  { label: "Send XLM", href: "/send" },
+  { label: "Contract", href: "/contract" },
   {
     label: "Explorer",
     href: "https://stellar.expert/explorer/testnet/contract/CBWAGSMUHYU2LNFGQ6CJ4B6DCUJILOZZU4GNIGCYYWWQQBGCUOL3Q43H",
@@ -22,9 +25,15 @@ const NAV_LINKS = [
   },
 ];
 
+function isActive(href: string, pathname: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(href + "/");
+}
+
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   // Close drawer on outside click
   useEffect(() => {
@@ -37,10 +46,10 @@ export function Navbar() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [menuOpen]);
 
-  // Close drawer on route scroll (anchor click)
-  function handleNavLinkClick() {
+  // Close drawer on route change
+  useEffect(() => {
     setMenuOpen(false);
-  }
+  }, [pathname]);
 
   return (
     <div ref={drawerRef} className="sticky top-0 z-50">
@@ -55,7 +64,7 @@ export function Navbar() {
         }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2.5">
+        <Link href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
           <OrbitLogoMark size={34} />
           <span className="text-lg font-semibold tracking-tight">
             <span style={{ color: "var(--text-1)" }}>Orbit</span>
@@ -71,25 +80,69 @@ export function Navbar() {
           >
             Testnet
           </span>
-        </div>
+        </Link>
 
-        {/* Desktop: nav links + controls */}
-        <div className="hidden md:flex items-center gap-6">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              target={link.external ? "_blank" : undefined}
-              rel={link.external ? "noopener noreferrer" : undefined}
-              className="text-sm font-medium transition-colors hover:text-indigo-400"
-              style={{ color: "var(--text-3)" }}
-            >
-              {link.label}
-              {link.external && (
+        {/* Desktop: nav links */}
+        <div className="hidden md:flex items-center gap-1">
+          {NAV_LINKS.filter((l) => !l.external).map((link) => {
+            const active = isActive(link.href, pathname);
+            return (
+              <div key={link.label} className="relative flex flex-col items-center">
+                <Link
+                  href={link.href}
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200"
+                  style={{
+                    background: active ? "rgba(99,102,241,0.15)" : "transparent",
+                    color: active ? "#6366f1" : "var(--text-3)",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!active) {
+                      (e.currentTarget as HTMLElement).style.color = "#6366f1";
+                      (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.08)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) {
+                      (e.currentTarget as HTMLElement).style.color = "var(--text-3)";
+                      (e.currentTarget as HTMLElement).style.background = "transparent";
+                    }
+                  }}
+                >
+                  {link.label}
+                </Link>
+                {/* Active indicator dot */}
+                <span
+                  className="absolute -bottom-1 w-1 h-1 rounded-full transition-all duration-200"
+                  style={{
+                    background: active ? "#6366f1" : "transparent",
+                    opacity: active ? 1 : 0,
+                  }}
+                />
+              </div>
+            );
+          })}
+          {/* External links */}
+          <div className="flex items-center gap-1 ml-2 pl-2" style={{ borderLeft: "1px solid var(--border-subtle)" }}>
+            {NAV_LINKS.filter((l) => l.external).map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                style={{ color: "var(--text-3)" }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.color = "#6366f1";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.color = "var(--text-3)";
+                }}
+              >
+                {link.label}
                 <span className="ml-0.5 text-xs opacity-50">↗</span>
-              )}
-            </a>
-          ))}
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* Right controls */}
@@ -139,7 +192,7 @@ export function Navbar() {
       <div
         className="md:hidden overflow-hidden transition-all duration-300 ease-in-out"
         style={{
-          maxHeight: menuOpen ? "400px" : "0px",
+          maxHeight: menuOpen ? "480px" : "0px",
           borderBottom: menuOpen ? "1px solid var(--border-nav)" : "none",
           background: "var(--surface-nav)",
           backdropFilter: "blur(16px)",
@@ -161,34 +214,37 @@ export function Navbar() {
             </span>
           </div>
 
-          {/* Nav links */}
-          {NAV_LINKS.map((link) => (
+          {/* Internal nav links */}
+          {NAV_LINKS.filter((l) => !l.external).map((link) => {
+            const active = isActive(link.href, pathname);
+            return (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                style={{
+                  color: active ? "#6366f1" : "var(--text-2)",
+                  background: active ? "rgba(99,102,241,0.1)" : "transparent",
+                }}
+              >
+                <span>{link.label}</span>
+                <span className="text-xs opacity-40">{active ? "●" : "→"}</span>
+              </Link>
+            );
+          })}
+
+          {/* External links in mobile drawer */}
+          {NAV_LINKS.filter((l) => l.external).map((link) => (
             <a
               key={link.label}
               href={link.href}
-              target={link.external ? "_blank" : undefined}
-              rel={link.external ? "noopener noreferrer" : undefined}
-              onClick={handleNavLinkClick}
-              className="flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-              style={{
-                color: "var(--text-2)",
-                background: "transparent",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background = "var(--surface-hover)";
-                (e.currentTarget as HTMLElement).style.color = "#a78bfa";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.background = "transparent";
-                (e.currentTarget as HTMLElement).style.color = "var(--text-2)";
-              }}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
+              style={{ color: "var(--text-3)" }}
             >
               <span>{link.label}</span>
-              {link.external ? (
-                <span className="text-xs opacity-40">↗</span>
-              ) : (
-                <span className="text-xs opacity-40">→</span>
-              )}
+              <span className="text-xs opacity-40">↗</span>
             </a>
           ))}
 
