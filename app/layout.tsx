@@ -5,6 +5,7 @@ import { WalletProvider } from "@/contexts/wallet-context";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { Analytics } from "@vercel/analytics/next";
 import { Navbar } from "@/components/navbar";
+import { ExternalLink } from "lucide-react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,18 +58,15 @@ export default function RootLayout({
 
 function SiteFooter() {
   return (
-    <footer
-      className="relative z-10 border-t py-6 px-4"
-      style={{ borderColor: "var(--border-subtle)" }}
-    >
-      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/30">
+    <footer className="relative z-10 border-t border-border py-6 px-4">
+      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
         <p>
           OrbitWork · Built on{" "}
           <a
             href="https://stellar.org"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-indigo-400/70 hover:text-indigo-400 transition-colors"
+            className="text-primary hover:text-primary/80 transition-colors"
           >
             Stellar
           </a>{" "}
@@ -79,25 +77,25 @@ function SiteFooter() {
             href="https://github.com/Gbangbolaoluwagbemiga/orbitwork-stellar"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-white/60 transition-colors"
+            className="flex items-center gap-1 hover:text-foreground transition-colors"
           >
-            GitHub
+            GitHub <ExternalLink className="size-3" />
           </a>
           <a
             href="https://laboratory.stellar.org"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-white/60 transition-colors"
+            className="flex items-center gap-1 hover:text-foreground transition-colors"
           >
-            Stellar Lab
+            Stellar Lab <ExternalLink className="size-3" />
           </a>
           <a
             href="https://stellar.expert/explorer/testnet"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-white/60 transition-colors"
+            className="flex items-center gap-1 hover:text-foreground transition-colors"
           >
-            Explorer
+            Explorer <ExternalLink className="size-3" />
           </a>
         </div>
       </div>

@@ -1,8 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { Wallet, ExternalLink, RefreshCw } from "lucide-react";
 import { useWallet } from "@/contexts/wallet-context";
 import { getXLMBalance } from "@/lib/stellar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export function BalanceCard() {
   const { address } = useWallet();
@@ -31,117 +36,71 @@ export function BalanceCard() {
   }, [fetchBalance]);
 
   return (
-    <div
-      className="rounded-2xl p-6 space-y-4 animate-fade-in-up"
-      style={{
-        background:
-          "linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(124,58,237,0.07) 100%)",
-        border: "1px solid rgba(99,102,241,0.2)",
-      }}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <XLMIcon />
-          <span className="text-sm font-medium text-white/60">XLM Balance</span>
+    <Card className="glass border-primary/20 bg-linear-to-br from-primary/8 to-accent/5">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Wallet className="size-4 text-primary" />
+            <CardTitle className="text-sm text-muted-foreground font-medium">
+              XLM Balance
+            </CardTitle>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={fetchBalance}
+            disabled={loading}
+            title="Refresh balance"
+            className="size-7"
+          >
+            <RefreshCw className={cn("size-3.5", loading && "animate-spin")} />
+          </Button>
         </div>
-        <button
-          onClick={fetchBalance}
-          disabled={loading}
-          className="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-white/40 hover:text-white/70"
-          title="Refresh balance"
+      </CardHeader>
+
+      <CardContent className="space-y-4 pb-6">
+        {/* Balance amount */}
+        <div className="space-y-1">
+          {loading && balance === null ? (
+            <div className="h-10 w-40 rounded-lg bg-muted animate-pulse" />
+          ) : error ? (
+            <p className="text-destructive text-sm">{error}</p>
+          ) : (
+            <>
+              <p className="text-4xl font-bold tracking-tight gradient-text">
+                {balance ?? "—"}
+              </p>
+              <p className="text-sm text-muted-foreground">XLM · Stellar Testnet</p>
+            </>
+          )}
+        </div>
+
+        <div className="h-px bg-border" />
+
+        {/* Wallet address */}
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">
+            Wallet Address
+          </p>
+          <p className="font-mono text-xs text-foreground/80 break-all">{address}</p>
+        </div>
+
+        {/* Status badge */}
+        <div className="flex items-center gap-2">
+          <Badge variant="success">Connected · Testnet</Badge>
+        </div>
+
+        {/* Faucet link */}
+        <a
+          href={`https://laboratory.stellar.org/#account-creator?network=test&account=${address}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors"
         >
-          <RefreshIcon spinning={loading} />
-        </button>
-      </div>
-
-      <div className="space-y-1">
-        {loading && balance === null ? (
-          <div
-            className="h-10 w-40 rounded-lg animate-pulse"
-            style={{ background: "var(--surface-hover)" }}
-          />
-        ) : error ? (
-          <p className="text-red-400 text-sm">{error}</p>
-        ) : (
-          <>
-            <p
-              className="text-4xl font-bold tracking-tight"
-              style={{
-                background:
-                  "linear-gradient(135deg, #a78bfa 0%, #6366f1 60%, #06b6d4 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              {balance ?? "—"}
-            </p>
-            <p className="text-sm text-white/40">XLM · Stellar Testnet</p>
-          </>
-        )}
-      </div>
-
-      <div style={{ borderTop: "1px solid var(--border-subtle)" }} />
-
-      <div className="space-y-1">
-        <p className="text-xs text-white/40 uppercase tracking-wider">
-          Wallet Address
-        </p>
-        <p className="font-mono text-xs text-white/70 break-all">{address}</p>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <span className="w-2 h-2 rounded-full bg-emerald-400" />
-        <span className="text-xs text-emerald-400">Connected · Testnet</span>
-      </div>
-
-      <a
-        href={`https://laboratory.stellar.org/#account-creator?network=test&account=${address}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
-      >
-        <span>🚰</span>
-        Fund account with Stellar Testnet Faucet
-        <ExternalLinkIcon />
-      </a>
-    </div>
-  );
-}
-
-function XLMIcon() {
-  return (
-    <div
-      className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
-      style={{ background: "rgba(99,102,241,0.25)", color: "#818cf8" }}
-    >
-      ✦
-    </div>
-  );
-}
-
-function RefreshIcon({ spinning }: { spinning: boolean }) {
-  return (
-    <svg
-      width="14" height="14" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2"
-      strokeLinecap="round" strokeLinejoin="round"
-      style={spinning ? { animation: "spin-slow 1s linear infinite" } : {}}
-    >
-      <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-      <path d="M3 3v5h5" />
-      <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-      <path d="M16 21h5v-5" />
-    </svg>
-  );
-}
-
-function ExternalLinkIcon() {
-  return (
-    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
+          Fund account with Stellar Testnet Faucet
+          <ExternalLink className="size-3" />
+        </a>
+      </CardContent>
+    </Card>
   );
 }

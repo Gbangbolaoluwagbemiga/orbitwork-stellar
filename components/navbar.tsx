@@ -3,25 +3,42 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  Home,
+  LayoutDashboard,
+  Briefcase,
+  Send,
+  FileCode2,
+  ExternalLink,
+  GitBranch,
+  Sun,
+  Moon,
+  Menu,
+  X,
+} from "lucide-react";
 import { OrbitLogoMark } from "@/components/orbit-logo";
 import { WalletButton } from "@/components/wallet-button";
 import { useTheme } from "@/contexts/theme-context";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { label: "Home", href: "/" },
-  { label: "Dashboard", href: "/dashboard" },
-  { label: "Job Board", href: "/jobs" },
-  { label: "Send XLM", href: "/send" },
-  { label: "Contract", href: "/contract" },
+  { label: "Home", href: "/", icon: Home },
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Job Board", href: "/jobs", icon: Briefcase },
+  { label: "Send XLM", href: "/send", icon: Send },
+  { label: "Contract", href: "/contract", icon: FileCode2 },
+];
+
+const EXTERNAL_LINKS = [
   {
     label: "Explorer",
     href: "https://stellar.expert/explorer/testnet/contract/CBWAGSMUHYU2LNFGQ6CJ4B6DCUJILOZZU4GNIGCYYWWQQBGCUOL3Q43H",
-    external: true,
   },
   {
     label: "GitHub",
     href: "https://github.com/Gbangbolaoluwagbemiga/orbitwork-stellar",
-    external: true,
   },
 ];
 
@@ -35,7 +52,6 @@ export function Navbar() {
   const drawerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
-  // Close drawer on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (drawerRef.current && !drawerRef.current.contains(e.target as Node)) {
@@ -46,100 +62,62 @@ export function Navbar() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [menuOpen]);
 
-  // Close drawer on route change
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
 
   return (
     <div ref={drawerRef} className="sticky top-0 z-50">
-      {/* ── Main bar ── */}
+      {/* Main nav bar */}
       <nav
-        className="flex items-center justify-between px-4 sm:px-6 py-3 border-b"
-        style={{
-          background: "var(--surface-nav)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-          borderColor: "var(--border-nav)",
-        }}
+        className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-border/50 backdrop-blur-xl"
+        style={{ background: "var(--nav-bg)" }}
       >
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
           <OrbitLogoMark size={34} />
-          <span className="text-lg font-semibold tracking-tight">
-            <span style={{ color: "var(--text-1)" }}>Orbit</span>
-            <span style={{ color: "#06b6d4" }}>Work</span>
+          <span className="text-lg font-semibold tracking-tight text-foreground">
+            Orbit<span className="text-accent font-bold">Work</span>
           </span>
-          <span
-            className="hidden sm:inline-flex items-center px-2 py-0.5 text-xs rounded-full font-mono"
-            style={{
-              background: "rgba(99,102,241,0.15)",
-              color: "#818cf8",
-              border: "1px solid rgba(99,102,241,0.25)",
-            }}
-          >
+          <Badge variant="outline" className="hidden sm:inline-flex font-mono text-xs text-primary border-primary/30">
             Testnet
-          </span>
+          </Badge>
         </Link>
 
-        {/* Desktop: nav links */}
+        {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-1">
-          {NAV_LINKS.filter((l) => !l.external).map((link) => {
+          {NAV_LINKS.map((link) => {
             const active = isActive(link.href, pathname);
+            const Icon = link.icon;
             return (
-              <div key={link.label} className="relative flex flex-col items-center">
-                <Link
-                  href={link.href}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200"
-                  style={{
-                    background: active ? "rgba(99,102,241,0.15)" : "transparent",
-                    color: active ? "#6366f1" : "var(--text-3)",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!active) {
-                      (e.currentTarget as HTMLElement).style.color = "#6366f1";
-                      (e.currentTarget as HTMLElement).style.background = "rgba(99,102,241,0.08)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!active) {
-                      (e.currentTarget as HTMLElement).style.color = "var(--text-3)";
-                      (e.currentTarget as HTMLElement).style.background = "transparent";
-                    }
-                  }}
-                >
-                  {link.label}
-                </Link>
-                {/* Active indicator dot */}
-                <span
-                  className="absolute -bottom-1 w-1 h-1 rounded-full transition-all duration-200"
-                  style={{
-                    background: active ? "#6366f1" : "transparent",
-                    opacity: active ? 1 : 0,
-                  }}
-                />
-              </div>
+              <Link
+                key={link.label}
+                href={link.href}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200",
+                  active
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-primary hover:bg-primary/5"
+                )}
+              >
+                <Icon className="size-3.5" />
+                {link.label}
+              </Link>
             );
           })}
+
           {/* External links */}
-          <div className="flex items-center gap-1 ml-2 pl-2" style={{ borderLeft: "1px solid var(--border-subtle)" }}>
-            {NAV_LINKS.filter((l) => l.external).map((link) => (
+          <div className="flex items-center gap-1 ml-2 pl-2 border-l border-border">
+            {EXTERNAL_LINKS.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-                style={{ color: "var(--text-3)" }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.color = "#6366f1";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.color = "var(--text-3)";
-                }}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all duration-200"
               >
                 {link.label}
-                <span className="ml-0.5 text-xs opacity-50">↗</span>
+                <ExternalLink className="size-3 opacity-50" />
               </a>
             ))}
           </div>
@@ -148,118 +126,91 @@ export function Navbar() {
         {/* Right controls */}
         <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
-          {/* Wallet button — hidden on mobile (shown in drawer) */}
           <div className="hidden md:block">
             <WalletButton />
           </div>
-          {/* Hamburger — mobile only */}
           <button
             onClick={() => setMenuOpen((o) => !o)}
-            className="md:hidden flex flex-col justify-center items-center w-9 h-9 rounded-lg gap-1.5 transition-all"
-            style={{
-              background: menuOpen ? "rgba(99,102,241,0.15)" : "var(--surface-hover)",
-              border: "1px solid var(--border-card)",
-            }}
+            className={cn(
+              "md:hidden flex items-center justify-center w-9 h-9 rounded-lg transition-all border border-border",
+              menuOpen ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"
+            )}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
           >
-            <span
-              className="block w-4 h-0.5 rounded-full transition-all duration-300 origin-center"
-              style={{
-                background: "var(--text-2)",
-                transform: menuOpen ? "translateY(4px) rotate(45deg)" : "none",
-              }}
-            />
-            <span
-              className="block w-4 h-0.5 rounded-full transition-all duration-300"
-              style={{
-                background: "var(--text-2)",
-                opacity: menuOpen ? 0 : 1,
-                transform: menuOpen ? "scaleX(0)" : "scaleX(1)",
-              }}
-            />
-            <span
-              className="block w-4 h-0.5 rounded-full transition-all duration-300 origin-center"
-              style={{
-                background: "var(--text-2)",
-                transform: menuOpen ? "translateY(-4px) rotate(-45deg)" : "none",
-              }}
-            />
+            {menuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
           </button>
         </div>
       </nav>
 
-      {/* ── Mobile drawer ── */}
-      <div
-        className="md:hidden overflow-hidden transition-all duration-300 ease-in-out"
-        style={{
-          maxHeight: menuOpen ? "480px" : "0px",
-          borderBottom: menuOpen ? "1px solid var(--border-nav)" : "none",
-          background: "var(--surface-nav)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-        }}
-      >
-        <div className="px-4 pt-3 pb-5 space-y-1">
-          {/* Testnet badge on mobile */}
-          <div className="flex items-center gap-2 pb-2">
-            <span
-              className="inline-flex items-center px-2 py-0.5 text-xs rounded-full font-mono"
-              style={{
-                background: "rgba(99,102,241,0.15)",
-                color: "#818cf8",
-                border: "1px solid rgba(99,102,241,0.25)",
-              }}
-            >
-              Testnet
-            </span>
-          </div>
+      {/* Mobile drawer with AnimatePresence */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="md:hidden overflow-hidden border-b border-border/50 backdrop-blur-xl"
+            style={{ background: "var(--nav-bg)" }}
+          >
+            <div className="px-4 pt-3 pb-5 space-y-1">
+              {/* Testnet badge */}
+              <div className="flex items-center gap-2 pb-2">
+                <Badge variant="outline" className="font-mono text-xs text-primary border-primary/30">
+                  Testnet
+                </Badge>
+              </div>
 
-          {/* Internal nav links */}
-          {NAV_LINKS.filter((l) => !l.external).map((link) => {
-            const active = isActive(link.href, pathname);
-            return (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                style={{
-                  color: active ? "#6366f1" : "var(--text-2)",
-                  background: active ? "rgba(99,102,241,0.1)" : "transparent",
-                }}
-              >
-                <span>{link.label}</span>
-                <span className="text-xs opacity-40">{active ? "●" : "→"}</span>
-              </Link>
-            );
-          })}
+              {/* Internal nav links */}
+              {NAV_LINKS.map((link) => {
+                const active = isActive(link.href, pathname);
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    className={cn(
+                      "flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                      active
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    )}
+                  >
+                    <Icon className="size-4" />
+                    <span className="flex-1">{link.label}</span>
+                    {active && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
+                  </Link>
+                );
+              })}
 
-          {/* External links in mobile drawer */}
-          {NAV_LINKS.filter((l) => l.external).map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
-              style={{ color: "var(--text-3)" }}
-            >
-              <span>{link.label}</span>
-              <span className="text-xs opacity-40">↗</span>
-            </a>
-          ))}
+              {/* External links */}
+              {EXTERNAL_LINKS.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                >
+                  {link.label === "GitHub" ? (
+                    <GitBranch className="size-4" />
+                  ) : (
+                    <ExternalLink className="size-4" />
+                  )}
+                  <span className="flex-1">{link.label}</span>
+                  <ExternalLink className="size-3 opacity-40" />
+                </a>
+              ))}
 
-          {/* Divider */}
-          <div
-            className="my-2"
-            style={{ height: "1px", background: "var(--border-subtle)" }}
-          />
+              <div className="h-px bg-border my-2" />
 
-          {/* Wallet button full width */}
-          <div className="pt-1">
-            <WalletButton />
-          </div>
-        </div>
-      </div>
+              <div className="pt-1">
+                <WalletButton />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -272,33 +223,9 @@ function ThemeToggle() {
     <button
       onClick={toggleTheme}
       title={`Switch to ${isDark ? "light" : "dark"} mode`}
-      className="relative w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200"
-      style={{
-        background: "var(--surface-hover)",
-        border: "1px solid var(--border-card)",
-        color: isDark ? "#a78bfa" : "#7c3aed",
-      }}
+      className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 bg-secondary border border-border text-muted-foreground hover:text-primary hover:bg-primary/10 hover:border-primary/30"
     >
-      {isDark ? <SunIcon /> : <MoonIcon />}
+      {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
     </button>
-  );
-}
-
-function SunIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="4"/>
-      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
-    </svg>
-  );
-}
-
-function MoonIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-    </svg>
   );
 }
