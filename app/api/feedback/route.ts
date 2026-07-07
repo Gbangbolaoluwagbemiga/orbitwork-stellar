@@ -6,18 +6,15 @@ export async function POST(req: NextRequest) {
   // Visible in Vercel → Functions → Logs
   console.log("[OrbitWork Feedback]", JSON.stringify(body));
 
-  // Forward to Formspree when FORMSPREE_ID env var is set
-  const formId = process.env.FORMSPREE_ID;
-  if (formId) {
-    try {
-      await fetch(`https://formspree.io/f/${formId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(body),
-      });
-    } catch {
-      // don't fail the request if forwarding fails
-    }
+  const formId = process.env.FORMSPREE_ID ?? "xnjkynvz";
+  try {
+    await fetch(`https://formspree.io/f/${formId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    // don't fail the request if forwarding fails
   }
 
   return NextResponse.json({ ok: true });
